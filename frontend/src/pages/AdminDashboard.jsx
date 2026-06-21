@@ -15,7 +15,14 @@ import {
   ArrowLeft,
   Loader,
   Check,
-  MapPin
+  MapPin,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Bell,
+  Settings,
+  MoreHorizontal
 } from 'lucide-react';
 import { API_URL } from '../App';
 
@@ -66,7 +73,7 @@ function AdminDashboard() {
   const itemsPerPage = 15;
 
   useEffect(() => {
-    if (token) {
+    if (latestToken) {
       fetchStats();
       fetchCoverages();
       fetchProducts();
@@ -123,11 +130,12 @@ function AdminDashboard() {
   };
 
   const handleLogout = () => {
+    const currentToken = localStorage.getItem('admin_token') || '';
     fetch(`${API_URL}/api/logout`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${currentToken}`
       }
     }).finally(() => {
       localStorage.removeItem('admin_token');
@@ -174,7 +182,7 @@ function AdminDashboard() {
       method: method,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${localStorage.getItem('admin_token') || ''}`
       },
       body: JSON.stringify({
         provinsi: covProvinsi,
@@ -204,7 +212,7 @@ function AdminDashboard() {
 
     fetch(`${API_URL}/api/coverage/${id}`, {
       method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` }
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('admin_token') || ''}` }
     })
       .then(async (res) => {
         if (res.ok) {
@@ -247,7 +255,7 @@ function AdminDashboard() {
       method: method,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${localStorage.getItem('admin_token') || ''}`
       },
       body: JSON.stringify({
         nama_paket: prodName,
@@ -274,7 +282,7 @@ function AdminDashboard() {
 
     fetch(`${API_URL}/api/products/${id}`, {
       method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` }
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('admin_token') || ''}` }
     })
       .then(async (res) => {
         if (res.ok) {
@@ -288,23 +296,31 @@ function AdminDashboard() {
       .catch(() => alert('Gagal menghubungi server'));
   };
 
+  // Tab labels for breadcrumb
+  const tabLabels = {
+    overview: 'Dashboard',
+    coverage: 'Coverage Area',
+    products: 'Paket Produk'
+  };
+
   // LOGIN GATE SCREEN
-  if (!token) {
+  const latestToken = localStorage.getItem('admin_token') || '';
+  if (!latestToken) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f1f5f9', padding: '24px' }}>
-        <div className="glass-card" style={{ width: '100%', maxWidth: '400px', animation: 'fadeIn 0.4s ease-out' }}>
-          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-            <div style={{ display: 'inline-flex', padding: '16px', background: 'rgba(126, 40, 123, 0.1)', borderRadius: '9999px', color: '#7E287B', marginBottom: '16px' }}>
-              <Lock size={32} />
+      <div className="login-page">
+        <div className="login-card animate-fade-in">
+          <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+            <div className="login-icon">
+              <Lock size={28} />
             </div>
-            <h3 style={{ fontSize: '24px', color: '#0f0f12' }}>Admin Sign In</h3>
-            <p style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>Masukkan akun administrator MyRepublic Anda.</p>
+            <h3 style={{ fontSize: '22px', color: 'var(--dark)', marginBottom: '4px' }}>Admin Sign In</h3>
+            <p style={{ fontSize: '13px', color: 'var(--gray-500)' }}>Masukkan akun administrator MyRepublic Anda.</p>
           </div>
 
           <form onSubmit={handleLogin}>
             <div className="form-group">
               <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <User size={14} /> Username
+                <User size={13} /> Username
               </label>
               <input 
                 type="text" 
@@ -317,7 +333,7 @@ function AdminDashboard() {
 
             <div className="form-group">
               <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Lock size={14} /> Password
+                <Lock size={13} /> Password
               </label>
               <input 
                 type="password" 
@@ -349,13 +365,14 @@ function AdminDashboard() {
 
   return (
     <div className="dashboard-layout">
-      {/* Sidebar Navigation */}
+      {/* Sidebar Navigation (Reference Image 1 style) */}
       <aside className="sidebar">
         <div className="sidebar-logo">
-          <Globe size={24} />
+          <Globe size={22} />
           MyR Admin
         </div>
         
+        <div className="sidebar-section-label">General</div>
         <ul className="sidebar-menu">
           <li>
             <button 
@@ -363,7 +380,7 @@ function AdminDashboard() {
               className={`sidebar-item-btn ${activeTab === 'overview' ? 'active' : ''}`}
             >
               <LayoutDashboard size={18} />
-              Overview
+              Dashboard
             </button>
           </li>
           <li>
@@ -373,6 +390,7 @@ function AdminDashboard() {
             >
               <Map size={18} />
               Coverage Area
+              <span className="item-badge">{stats.total_coverages || 0}</span>
             </button>
           </li>
           <li>
@@ -382,73 +400,169 @@ function AdminDashboard() {
             >
               <Package size={18} />
               Paket Produk
+              <span className="item-badge">{stats.total_products || 0}</span>
             </button>
           </li>
         </ul>
 
-        <div>
-          <hr style={{ border: 'none', borderTop: '1px solid #e2e8f0', margin: '16px 0' }} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', marginBottom: '16px' }}>
-            <div style={{ width: '32px', height: '32px', background: '#7E287B', borderRadius: '50%', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '14px' }}>
-              {username.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <p style={{ margin: 0, fontSize: '13px', fontWeight: 600 }}>{username}</p>
-              <span style={{ fontSize: '11px', color: '#64748b' }}>Administrator</span>
-            </div>
-          </div>
+        {/* Bottom section with user profile */}
+        <div style={{ borderTop: '1px solid var(--gray-200)', paddingTop: '16px', marginTop: 'auto' }}>
+          <div className="sidebar-section-label" style={{ paddingTop: '0' }}>Profil</div>
+          <button className="sidebar-item-btn" style={{ marginBottom: '4px' }}>
+            <Settings size={18} />
+            Settings
+          </button>
           <button onClick={handleLogout} className="sidebar-item-btn" style={{ color: '#ef4444' }}>
             <LogOut size={18} />
             Keluar
           </button>
+          <div style={{ margin: '12px 0 0' }}>
+            <div className="sidebar-user">
+              <div className="sidebar-user-avatar">
+                {username.charAt(0).toUpperCase()}
+              </div>
+              <div className="sidebar-user-info">
+                <p>{username}</p>
+                <span>Administrator</span>
+              </div>
+            </div>
+          </div>
         </div>
       </aside>
 
       {/* Main Content Pane */}
       <main className="main-content">
-        
+        {/* Top Header Bar (like reference image 1) */}
+        <div className="main-content-header">
+          <div className="breadcrumb">
+            <a href="#">Pages</a>
+            <span className="separator">/</span>
+            <span className="current">{tabLabels[activeTab]}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="search-bar">
+              <Search className="search-icon" size={16} />
+              <input 
+                type="text" 
+                className="form-control" 
+                placeholder="Search..." 
+                style={{ paddingLeft: '38px', width: '220px', fontSize: '13px' }}
+              />
+            </div>
+            <button style={{ width: '36px', height: '36px', border: '1px solid var(--gray-200)', borderRadius: 'var(--radius-sm)', background: 'var(--white)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--gray-500)' }}>
+              <Bell size={16} />
+            </button>
+            <div className="sidebar-user-avatar" style={{ width: '32px', height: '32px', fontSize: '12px', borderRadius: 'var(--radius-full)', cursor: 'pointer' }}>
+              {username.charAt(0).toUpperCase()}
+            </div>
+          </div>
+        </div>
+
         {/* OVERVIEW TAB */}
         {activeTab === 'overview' && (
           <div className="animate-fade-in">
-            <h2 style={{ fontSize: '28px', color: '#0f0f12' }}>Dashboard Overview</h2>
-            <p className="text-gray-600">Ringkasan statistik jangkauan dan produk internet Anda saat ini.</p>
+            {/* Promo Banner (like reference image 1) */}
+            <div className="promo-banner">
+              <div className="promo-text">
+                <span className="promo-label">MyRepublic</span>
+                <span className="promo-message">Kelola area coverage dan paket internet fiber optic Lampung.</span>
+              </div>
+              <a href="#" className="btn btn-secondary" style={{ fontSize: '13px', padding: '8px 16px' }}>
+                Lihat Landing Page
+              </a>
+            </div>
 
-            <div className="grid grid-3" style={{ marginTop: '32px' }}>
-              <div className="glass-card" style={{ padding: '24px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 600 }}>TOTAL WILAYAH</span>
-                    <h3 style={{ fontSize: '36px', marginTop: '8px' }}>{stats.total_coverages}</h3>
+            <div className="overview-header">
+              <h2>Overview</h2>
+            </div>
+
+            {/* Stat Cards Row (4 cards like reference image 1) */}
+            <div className="grid grid-3" style={{ marginBottom: '28px' }}>
+              <div className="stat-card">
+                <div className="stat-label">
+                  <div className="stat-icon" style={{ background: 'var(--primary-soft)', color: 'var(--primary)' }}>
+                    <Map size={16} />
                   </div>
-                  <div style={{ padding: '12px', background: 'rgba(126, 40, 123, 0.1)', color: '#7E287B', borderRadius: '12px' }}>
-                    <Map size={24} />
-                  </div>
+                  Total Wilayah
+                </div>
+                <div className="stat-value">{stats.total_coverages}</div>
+                <div className="stat-change positive">
+                  <TrendingUp size={12} /> Area terdaftar
                 </div>
               </div>
 
-              <div className="glass-card" style={{ padding: '24px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 600 }}>TERSEDIA</span>
-                    <h3 style={{ fontSize: '36px', marginTop: '8px', color: '#10b981' }}>{stats.available_coverages}</h3>
+              <div className="stat-card">
+                <div className="stat-label">
+                  <div className="stat-icon" style={{ background: 'var(--success-light)', color: 'var(--success)' }}>
+                    <Check size={16} />
                   </div>
-                  <div style={{ padding: '12px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderRadius: '12px' }}>
-                    <TrendingUp size={24} />
-                  </div>
+                  Tersedia
+                </div>
+                <div className="stat-value" style={{ color: 'var(--success)' }}>{stats.available_coverages}</div>
+                <div className="stat-change positive">
+                  <TrendingUp size={12} /> Fiber optic aktif
                 </div>
               </div>
 
-              <div className="glass-card" style={{ padding: '24px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 600 }}>PAKET PRODUK</span>
-                    <h3 style={{ fontSize: '36px', marginTop: '8px' }}>{stats.total_products}</h3>
+              <div className="stat-card">
+                <div className="stat-label">
+                  <div className="stat-icon" style={{ background: 'var(--warning-light)', color: 'var(--warning)' }}>
+                    <Package size={16} />
                   </div>
-                  <div style={{ padding: '12px', background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', borderRadius: '12px' }}>
-                    <Package size={24} />
-                  </div>
+                  Paket Produk
+                </div>
+                <div className="stat-value">{stats.total_products}</div>
+                <div className="stat-change positive">
+                  <TrendingUp size={12} /> Paket aktif
                 </div>
               </div>
+            </div>
+
+            {/* Quick data preview - recent coverages */}
+            <div className="table-container">
+              <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--gray-200)' }}>
+                <h4 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--dark)' }}>Data Coverage Terbaru</h4>
+                <button 
+                  onClick={() => setActiveTab('coverage')} 
+                  className="btn btn-secondary" 
+                  style={{ fontSize: '12px', padding: '6px 14px' }}
+                >
+                  View All
+                </button>
+              </div>
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Kabupaten</th>
+                    <th>Kecamatan</th>
+                    <th>Status</th>
+                    <th>Koordinat</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {coverages.slice(0, 5).map((cov) => (
+                    <tr key={cov.id}>
+                      <td style={{ fontWeight: 600 }}>{cov.kabupaten}</td>
+                      <td>{cov.kecamatan}</td>
+                      <td>
+                        <span className={`badge ${cov.status === 'Tersedia' ? 'badge-success' : 'badge-danger'}`}>
+                          <span className={`status-dot ${cov.status === 'Tersedia' ? 'success' : 'danger'}`}></span>
+                          {cov.status}
+                        </span>
+                      </td>
+                      <td>
+                        {cov.latitude ? (
+                          <span style={{ color: 'var(--success)', fontSize: '13px', fontWeight: 500 }}>
+                            {parseFloat(cov.latitude).toFixed(4)}, {parseFloat(cov.longitude).toFixed(4)}
+                          </span>
+                        ) : (
+                          <span style={{ color: 'var(--gray-400)', fontSize: '13px' }}>—</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
@@ -468,25 +582,25 @@ function AdminDashboard() {
 
           return (
             <div className="animate-fade-in">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="action-bar">
                 <div>
-                  <h2 style={{ fontSize: '28px', color: '#0f0f12' }}>Manajemen Coverage Area</h2>
-                  <p className="text-gray-600">Tambah, ubah, dan hapus area jangkauan kabel fiber optic.</p>
+                  <h2 style={{ fontSize: '22px', color: 'var(--dark)', marginBottom: '4px' }}>Coverage Area</h2>
+                  <p style={{ fontSize: '14px', color: 'var(--gray-500)' }}>Tambah, ubah, dan hapus area jangkauan kabel fiber optic.</p>
                 </div>
                 <button onClick={openAddCoverage} className="btn btn-primary" style={{ background: '#7E287B' }}>
-                  <Plus size={18} />
+                  <Plus size={16} />
                   Tambah Wilayah
                 </button>
               </div>
 
               {/* Search bar */}
-              <div style={{ marginTop: '24px', position: 'relative', maxWidth: '400px' }}>
-                <Search style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} size={16} />
+              <div className="search-bar" style={{ marginBottom: '4px', maxWidth: '400px' }}>
+                <Search className="search-icon" size={16} />
                 <input 
                   type="text" 
                   className="form-control" 
                   placeholder="Cari Kabupaten / Kecamatan..." 
-                  style={{ paddingLeft: '44px' }}
+                  style={{ paddingLeft: '38px' }}
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
@@ -515,25 +629,26 @@ function AdminDashboard() {
                         <td>{cov.kecamatan}</td>
                         <td>
                           <span className={`badge ${cov.status === 'Tersedia' ? 'badge-success' : 'badge-danger'}`}>
+                            <span className={`status-dot ${cov.status === 'Tersedia' ? 'success' : 'danger'}`}></span>
                             {cov.status}
                           </span>
                         </td>
                         <td>
                           {cov.latitude ? (
-                            <span style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px' }}>
-                              <Check size={14} /> Terpetakan ({parseFloat(cov.latitude).toFixed(4)}, {parseFloat(cov.longitude).toFixed(4)})
+                            <span style={{ color: 'var(--success)', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: 500 }}>
+                              <Check size={13} /> {parseFloat(cov.latitude).toFixed(4)}, {parseFloat(cov.longitude).toFixed(4)}
                             </span>
                           ) : (
-                            <span style={{ color: '#94a3b8', fontSize: '13px' }}>Batas kosong</span>
+                            <span style={{ color: 'var(--gray-400)', fontSize: '13px' }}>Batas kosong</span>
                           )}
                         </td>
                         <td style={{ textAlign: 'right' }}>
-                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                            <button onClick={() => openEditCoverage(cov)} className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '12px' }}>
-                              <Edit2 size={12} />
+                          <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                            <button onClick={() => openEditCoverage(cov)} className="btn btn-secondary" style={{ padding: '6px 10px', fontSize: '12px' }}>
+                              <Edit2 size={13} />
                             </button>
-                            <button onClick={() => handleDeleteCoverage(cov.id)} className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '12px', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.2)' }}>
-                              <Trash2 size={12} />
+                            <button onClick={() => handleDeleteCoverage(cov.id)} className="btn btn-secondary" style={{ padding: '6px 10px', fontSize: '12px', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.2)' }}>
+                              <Trash2 size={13} />
                             </button>
                           </div>
                         </td>
@@ -541,7 +656,7 @@ function AdminDashboard() {
                     ))}
                     {paginatedCoverages.length === 0 && (
                       <tr>
-                        <td colSpan="6" style={{ textAlign: 'center', padding: '32px', color: '#64748b' }}>
+                        <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-500)' }}>
                           Tidak ada wilayah coverage yang cocok dengan pencarian Anda.
                         </td>
                       </tr>
@@ -550,30 +665,42 @@ function AdminDashboard() {
                 </table>
               </div>
 
-              {/* Pagination controls */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px' }}>
-                <span style={{ fontSize: '13px', color: '#64748b' }}>
+              {/* Pagination (like reference image 1) */}
+              <div className="pagination">
+                <span className="pagination-info">
                   Menampilkan {paginatedCoverages.length} dari {filteredCoverages.length} wilayah
                 </span>
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div className="pagination-controls">
                   <button 
+                    className="page-btn"
+                    onClick={() => setCurrentPage(1)}
+                    disabled={page === 1}
+                  >
+                    <ChevronsLeft size={14} />
+                  </button>
+                  <button 
+                    className="page-btn"
                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                     disabled={page === 1}
-                    className="btn btn-secondary"
-                    style={{ padding: '8px 16px', fontSize: '13px', cursor: page === 1 ? 'not-allowed' : 'pointer', opacity: page === 1 ? 0.5 : 1 }}
                   >
-                    Sebelumnya
+                    <ChevronLeft size={14} />
                   </button>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: 600, color: '#374151', padding: '0 8px' }}>
-                    Halaman {page} dari {totalPages}
-                  </div>
+                  <span className="page-info">
+                    {page} / {totalPages}
+                  </span>
                   <button 
+                    className="page-btn"
                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                     disabled={page === totalPages}
-                    className="btn btn-secondary"
-                    style={{ padding: '8px 16px', fontSize: '13px', cursor: page === totalPages ? 'not-allowed' : 'pointer', opacity: page === totalPages ? 0.5 : 1 }}
                   >
-                    Selanjutnya
+                    <ChevronRight size={14} />
+                  </button>
+                  <button 
+                    className="page-btn"
+                    onClick={() => setCurrentPage(totalPages)}
+                    disabled={page === totalPages}
+                  >
+                    <ChevronsRight size={14} />
                   </button>
                 </div>
               </div>
@@ -584,13 +711,13 @@ function AdminDashboard() {
         {/* PRODUCT MANAGEMENT TAB */}
         {activeTab === 'products' && (
           <div className="animate-fade-in">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="action-bar">
               <div>
-                <h2 style={{ fontSize: '28px', color: '#0f0f12' }}>Manajemen Paket Produk</h2>
-                <p className="text-gray-600">Kelola tawaran paket internet fiber optic untuk pelanggan.</p>
+                <h2 style={{ fontSize: '22px', color: 'var(--dark)', marginBottom: '4px' }}>Paket Produk</h2>
+                <p style={{ fontSize: '14px', color: 'var(--gray-500)' }}>Kelola tawaran paket internet fiber optic untuk pelanggan.</p>
               </div>
               <button onClick={openAddProduct} className="btn btn-primary" style={{ background: '#7E287B' }}>
-                <Plus size={18} />
+                <Plus size={16} />
                 Tambah Paket
               </button>
             </div>
@@ -611,7 +738,7 @@ function AdminDashboard() {
                     <tr key={prod.id}>
                       <td style={{ fontWeight: 600 }}>{prod.nama_paket}</td>
                       <td>
-                        <span style={{ color: '#7E287B', fontWeight: 700 }}>{prod.kecepatan}</span>
+                        <span className="badge badge-primary">{prod.kecepatan}</span>
                       </td>
                       <td>
                         {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(prod.harga)}
@@ -620,12 +747,12 @@ function AdminDashboard() {
                         {prod.deskripsi}
                       </td>
                       <td style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                          <button onClick={() => openEditProduct(prod)} className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '12px' }}>
-                            <Edit2 size={12} />
+                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                          <button onClick={() => openEditProduct(prod)} className="btn btn-secondary" style={{ padding: '6px 10px', fontSize: '12px' }}>
+                            <Edit2 size={13} />
                           </button>
-                          <button onClick={() => handleDeleteProduct(prod.id)} className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '12px', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.2)' }}>
-                            <Trash2 size={12} />
+                          <button onClick={() => handleDeleteProduct(prod.id)} className="btn btn-secondary" style={{ padding: '6px 10px', fontSize: '12px', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.2)' }}>
+                            <Trash2 size={13} />
                           </button>
                         </div>
                       </td>
@@ -640,12 +767,12 @@ function AdminDashboard() {
 
       {/* COVERAGE MODAL FORM */}
       {showCoverageModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(15,15,18,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '24px' }}>
-          <div className="glass-card" style={{ width: '100%', maxWidth: '500px', animation: 'fadeIn 0.3s ease-out' }}>
-            <h4 style={{ fontSize: '20px', color: '#7E287B', marginBottom: '16px' }}>
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <h4>
               {editingCoverage ? 'Edit Wilayah Coverage' : 'Tambah Wilayah Coverage'}
             </h4>
-            <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '24px' }}>
+            <p className="modal-desc">
               Masukkan detail wilayah administratif. Koordinat spasial (lat, lon, polygon) akan dicari otomatis dari server OpenStreetMap saat disimpan.
             </p>
 
@@ -694,14 +821,14 @@ function AdminDashboard() {
                 </select>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
                 <div>
                   <label className="form-label">Latitude (Manual)</label>
                   <input 
                     type="number" 
                     step="any"
                     className="form-control" 
-                    placeholder="Biarkan kosong untuk auto-resolve"
+                    placeholder="Auto-resolve"
                     value={covLatitude} 
                     onChange={(e) => setCovLatitude(e.target.value)} 
                   />
@@ -712,7 +839,7 @@ function AdminDashboard() {
                     type="number" 
                     step="any"
                     className="form-control" 
-                    placeholder="Biarkan kosong untuk auto-resolve"
+                    placeholder="Auto-resolve"
                     value={covLongitude} 
                     onChange={(e) => setCovLongitude(e.target.value)} 
                   />
@@ -720,20 +847,20 @@ function AdminDashboard() {
               </div>
 
               {osmFeedback && (
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '20px', fontSize: '12px', color: '#64748b' }}>
-                  <MapPin size={16} color="#7E287B" />
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: 'var(--gray-50)', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--gray-200)', marginBottom: '16px', fontSize: '12px', color: 'var(--gray-600)' }}>
+                  <MapPin size={14} color="#7E287B" />
                   <span>{osmFeedback}</span>
                 </div>
               )}
 
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '32px' }}>
+              <div className="modal-actions">
                 <button type="button" onClick={() => setShowCoverageModal(false)} className="btn btn-secondary">
                   Batal
                 </button>
                 <button type="submit" className="btn btn-primary" style={{ background: '#7E287B' }} disabled={covLoading}>
                   {covLoading ? (
                     <>
-                      <Loader className="animate-spin" size={16} />
+                      <Loader className="animate-spin" size={14} />
                       Mencari Georef OSM...
                     </>
                   ) : 'Simpan Wilayah'}
@@ -746,9 +873,9 @@ function AdminDashboard() {
 
       {/* PRODUCT MODAL FORM */}
       {showProductModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(15,15,18,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '24px' }}>
-          <div className="glass-card" style={{ width: '100%', maxWidth: '500px', animation: 'fadeIn 0.3s ease-out' }}>
-            <h4 style={{ fontSize: '20px', color: '#7E287B', marginBottom: '16px' }}>
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <h4>
               {editingProduct ? 'Edit Paket Produk' : 'Tambah Paket Produk'}
             </h4>
 
@@ -797,7 +924,7 @@ function AdminDashboard() {
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '32px' }}>
+              <div className="modal-actions">
                 <button type="button" onClick={() => setShowProductModal(false)} className="btn btn-secondary">
                   Batal
                 </button>
