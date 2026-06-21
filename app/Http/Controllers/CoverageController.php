@@ -33,6 +33,16 @@ class CoverageController extends Controller
         $kecamatan = $request->input('kecamatan');
         $status = $request->input('status');
 
+        $latitude = $request->input('latitude');
+        $longitude = $request->input('longitude');
+
+        if ($latitude !== '' && $latitude !== null && !is_numeric($latitude)) {
+            return response()->json(['message' => 'Latitude harus berupa angka'], 422);
+        }
+        if ($longitude !== '' && $longitude !== null && !is_numeric($longitude)) {
+            return response()->json(['message' => 'Longitude harus berupa angka'], 422);
+        }
+
         $coverage = new Coverage([
             'provinsi' => $provinsi,
             'kabupaten' => $kabupaten,
@@ -40,12 +50,18 @@ class CoverageController extends Controller
             'status' => $status,
         ]);
 
-        // Fetch coordinates and boundary geojson from OpenStreetMap Nominatim
-        $osmData = $this->fetchOsmBoundary($provinsi, $kabupaten, $kecamatan);
-        if ($osmData) {
-            $coverage->latitude = $osmData['lat'];
-            $coverage->longitude = $osmData['lon'];
-            $coverage->geojson = $osmData['geojson'];
+        if ($latitude !== '' && $latitude !== null && $longitude !== '' && $longitude !== null) {
+            $coverage->latitude = (double) $latitude;
+            $coverage->longitude = (double) $longitude;
+            $coverage->geojson = null;
+        } else {
+            // Fetch coordinates and boundary geojson from OpenStreetMap Nominatim
+            $osmData = $this->fetchOsmBoundary($provinsi, $kabupaten, $kecamatan);
+            if ($osmData) {
+                $coverage->latitude = $osmData['lat'];
+                $coverage->longitude = $osmData['lon'];
+                $coverage->geojson = $osmData['geojson'];
+            }
         }
 
         $coverage->save();
@@ -93,6 +109,16 @@ class CoverageController extends Controller
         $kecamatan = $request->input('kecamatan');
         $status = $request->input('status');
 
+        $latitude = $request->input('latitude');
+        $longitude = $request->input('longitude');
+
+        if ($latitude !== '' && $latitude !== null && !is_numeric($latitude)) {
+            return response()->json(['message' => 'Latitude harus berupa angka'], 422);
+        }
+        if ($longitude !== '' && $longitude !== null && !is_numeric($longitude)) {
+            return response()->json(['message' => 'Longitude harus berupa angka'], 422);
+        }
+
         $isLocationChanged = ($coverage->provinsi !== $provinsi || $coverage->kabupaten !== $kabupaten || $coverage->kecamatan !== $kecamatan);
 
         $coverage->provinsi = $provinsi;
@@ -100,7 +126,11 @@ class CoverageController extends Controller
         $coverage->kecamatan = $kecamatan;
         $coverage->status = $status;
 
-        if ($isLocationChanged) {
+        if ($latitude !== '' && $latitude !== null && $longitude !== '' && $longitude !== null) {
+            $coverage->latitude = (double) $latitude;
+            $coverage->longitude = (double) $longitude;
+            $coverage->geojson = null;
+        } else if ($isLocationChanged) {
             // Re-fetch coordinates and geojson
             $osmData = $this->fetchOsmBoundary($provinsi, $kabupaten, $kecamatan);
             if ($osmData) {
