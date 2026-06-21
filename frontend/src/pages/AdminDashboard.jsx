@@ -22,7 +22,9 @@ import {
   ChevronsRight,
   Bell,
   Settings,
-  MoreHorizontal
+  MoreHorizontal,
+  Menu,
+  X
 } from 'lucide-react';
 import { API_URL } from '../App';
 
@@ -38,6 +40,9 @@ function AdminDashboard() {
 
   // Active sub-page tab
   const [activeTab, setActiveTab] = useState('overview');
+
+  // Mobile sidebar state
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Stats
   const [stats, setStats] = useState({ total_products: 0, total_coverages: 0, available_coverages: 0 });
@@ -365,8 +370,30 @@ function AdminDashboard() {
 
   return (
     <div className="dashboard-layout">
+      {/* Mobile Top Bar */}
+      <div className="mobile-admin-bar">
+        <div className="sidebar-logo">
+          <Globe size={20} />
+          MyR Admin
+        </div>
+        <button
+          className="mobile-menu-btn"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          style={{ display: 'flex' }}
+          aria-label="Toggle sidebar"
+        >
+          {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
+
+      {/* Sidebar Overlay (mobile) */}
+      <div
+        className={`sidebar-overlay${sidebarOpen ? ' active' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+
       {/* Sidebar Navigation (Reference Image 1 style) */}
-      <aside className="sidebar">
+      <aside className={`sidebar${sidebarOpen ? ' open' : ''}`}>
         <div className="sidebar-logo">
           <Globe size={22} />
           MyR Admin
@@ -376,7 +403,7 @@ function AdminDashboard() {
         <ul className="sidebar-menu">
           <li>
             <button 
-              onClick={() => setActiveTab('overview')} 
+              onClick={() => { setActiveTab('overview'); setSidebarOpen(false); }} 
               className={`sidebar-item-btn ${activeTab === 'overview' ? 'active' : ''}`}
             >
               <LayoutDashboard size={18} />
@@ -385,7 +412,7 @@ function AdminDashboard() {
           </li>
           <li>
             <button 
-              onClick={() => setActiveTab('coverage')} 
+              onClick={() => { setActiveTab('coverage'); setSidebarOpen(false); }} 
               className={`sidebar-item-btn ${activeTab === 'coverage' ? 'active' : ''}`}
             >
               <Map size={18} />
@@ -395,7 +422,7 @@ function AdminDashboard() {
           </li>
           <li>
             <button 
-              onClick={() => setActiveTab('products')} 
+              onClick={() => { setActiveTab('products'); setSidebarOpen(false); }} 
               className={`sidebar-item-btn ${activeTab === 'products' ? 'active' : ''}`}
             >
               <Package size={18} />
@@ -439,20 +466,20 @@ function AdminDashboard() {
             <span className="separator">/</span>
             <span className="current">{tabLabels[activeTab]}</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className="search-bar">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', flex: '1 1 auto', justifyContent: 'flex-end' }}>
+            <div className="search-bar" style={{ flex: '1 1 180px', maxWidth: '280px', minWidth: '0' }}>
               <Search className="search-icon" size={16} />
               <input 
                 type="text" 
                 className="form-control" 
                 placeholder="Search..." 
-                style={{ paddingLeft: '38px', width: '220px', fontSize: '13px' }}
+                style={{ paddingLeft: '38px', fontSize: '13px' }}
               />
             </div>
-            <button style={{ width: '36px', height: '36px', border: '1px solid var(--gray-200)', borderRadius: 'var(--radius-sm)', background: 'var(--white)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--gray-500)' }}>
+            <button style={{ width: '36px', height: '36px', border: '1px solid var(--gray-200)', borderRadius: 'var(--radius-sm)', background: 'var(--white)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--gray-500)', flexShrink: 0 }}>
               <Bell size={16} />
             </button>
-            <div className="sidebar-user-avatar" style={{ width: '32px', height: '32px', fontSize: '12px', borderRadius: 'var(--radius-full)', cursor: 'pointer' }}>
+            <div className="sidebar-user-avatar" style={{ width: '32px', height: '32px', fontSize: '12px', borderRadius: 'var(--radius-full)', cursor: 'pointer', flexShrink: 0 }}>
               {username.charAt(0).toUpperCase()}
             </div>
           </div>

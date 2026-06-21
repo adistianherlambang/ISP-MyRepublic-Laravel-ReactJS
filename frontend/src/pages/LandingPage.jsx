@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, GeoJSON, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
-import { MapPin, Search, Compass, Shield, Wifi, Zap, CheckCircle, XCircle, ArrowRight, Laptop, Star } from 'lucide-react';
+import { MapPin, Search, Compass, Shield, Wifi, Zap, CheckCircle, XCircle, ArrowRight, Laptop, Star, Menu, X } from 'lucide-react';
 import { API_URL } from '../App';
 import L from 'leaflet';
 
@@ -44,6 +44,9 @@ function LandingPage() {
   // Map control states
   const [mapCenter, setMapCenter] = useState([-4.976, 105.037]); // Lampung coordinates
   const [mapZoom, setMapZoom] = useState(8.5);
+
+  // Mobile menu state
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     // 1. Fetch products
@@ -212,19 +215,29 @@ function LandingPage() {
     <div className="hero-gradient min-vh-100">
       {/* Clean White Navbar (Reference Image 2 style) */}
       <div className="container">
-        <header className="floating-navbar">
-          <a href="#" className="nav-logo">
-            <Wifi size={20} color="#7E287B" />
-            MyRepublic <span style={{ color: '#7E287B' }}>Lampung</span>
-          </a>
-          <nav className="nav-links">
-            <a href="#coverage-section" className="nav-link">Coverage</a>
-            <a href="#products-section" className="nav-link">Paket Internet</a>
-            <a href="#stats-section" className="nav-link">Statistik</a>
+        <header className="floating-navbar" style={{ flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+            <a href="#" className="nav-logo">
+              <Wifi size={20} color="#7E287B" />
+              MyRepublic <span style={{ color: '#7E287B' }}>Lampung</span>
+            </a>
+            <button
+              className="mobile-menu-btn"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle navigation"
+            >
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
+          <nav className={`nav-links${mobileMenuOpen ? ' open' : ''}`}>
+            <a href="#coverage-section" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Coverage</a>
+            <a href="#products-section" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Paket Internet</a>
+            <a href="#stats-section" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Statistik</a>
             <a
               href="#admin"
               className="btn btn-primary btn-pill"
               style={{ padding: '8px 20px', fontSize: '13px' }}
+              onClick={() => setMobileMenuOpen(false)}
             >
               Admin Panel
             </a>
@@ -519,8 +532,8 @@ function LandingPage() {
                   </div>
                 </div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <div style={{ width: '220px', height: '220px' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '20px 0' }}>
+                <div style={{ width: '100%', maxWidth: '220px' }}>
                   <Doughnut data={chartData} options={chartOptions} />
                 </div>
               </div>
