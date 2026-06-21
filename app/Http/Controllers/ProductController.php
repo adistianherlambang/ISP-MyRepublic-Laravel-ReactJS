@@ -25,7 +25,7 @@ class ProductController extends Controller
             'nama_paket' => 'required|string|max:100',
             'kecepatan' => 'required|string|max:50',
             'harga' => 'required|integer',
-            'deskripsi' => 'nullable|string',
+            'deskripsi' => 'string',
         ]);
 
         $product = Product::create($request->all());
@@ -65,7 +65,7 @@ class ProductController extends Controller
             'nama_paket' => 'required|string|max:100',
             'kecepatan' => 'required|string|max:50',
             'harga' => 'required|integer',
-            'deskripsi' => 'nullable|string',
+            'deskripsi' => 'string',
         ]);
 
         $product->update($request->all());

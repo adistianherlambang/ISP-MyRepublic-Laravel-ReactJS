@@ -17,20 +17,21 @@ class Cors
     {
         // Handle OPTIONS preflight requests
         if ($request->getMethod() === "OPTIONS") {
-            return response('')
-                ->header('Access-Control-Allow-Origin', '*')
-                ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-                ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-Auth-Token')
-                ->header('Access-Control-Max-Age', '86400');
+            $response = response('');
+            $response->headers->set('Access-Control-Allow-Origin', '*');
+            $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+            $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-Auth-Token');
+            $response->headers->set('Access-Control-Max-Age', '86400');
+            return $response;
         }
 
         $response = $next($request);
 
-        // Add headers to normal response
-        if (method_exists($response, 'header')) {
-            $response->header('Access-Control-Allow-Origin', '*')
-                ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-                ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-Auth-Token');
+        // Add headers to normal response (using Symfony ResponseHeaderBag set method)
+        if ($response && isset($response->headers)) {
+            $response->headers->set('Access-Control-Allow-Origin', '*');
+            $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+            $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-Auth-Token');
         }
 
         return $response;
