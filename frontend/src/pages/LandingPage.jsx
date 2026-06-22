@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, GeoJSON, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
-import { MapPin, Search, Compass, Shield, Wifi, Zap, CheckCircle, XCircle, ArrowRight, Laptop, Star, Menu, X, Send, UserPlus, Phone, Home } from 'lucide-react';
+import { MapPin, Search, Compass, Shield, Wifi, Zap, CheckCircle, XCircle, ArrowRight, Laptop, Star, Menu, X, Send, UserPlus, Phone, Home, Camera } from 'lucide-react';
 import { API_URL } from '../App';
 import L from 'leaflet';
 
@@ -51,6 +51,8 @@ function LandingPage() {
   // Registration form states
   const [showRegForm, setShowRegForm] = useState(false);
   const [regForm, setRegForm] = useState({ nama: '', telepon: '', alamat: '', paket_id: '' });
+  const [fotoRumah, setFotoRumah] = useState(null);
+  const [fotoKtp, setFotoKtp] = useState(null);
   const [regLoading, setRegLoading] = useState(false);
   const [regSuccess, setRegSuccess] = useState(null);
   const [regError, setRegError] = useState(null);
@@ -150,6 +152,7 @@ function LandingPage() {
       .then(res => res.json())
       .then(data => {
         setGeoResult({
+
           status: data.status,
           kabupaten: kabupaten,
           kecamatan: kecamatan,
@@ -182,30 +185,42 @@ function LandingPage() {
     setRegLoading(true);
     setRegError(null);
 
-    const payload = {
-      nama: regForm.nama,
-      telepon: regForm.telepon,
-      alamat: regForm.alamat,
-      kabupaten: geoResult?.kabupaten || manualKab,
-      kecamatan: geoResult?.kecamatan || manualKec,
-    };
+    const formData = new FormData();
+    formData.append('nama', regForm.nama);
+    formData.append('telepon', regForm.telepon);
+    formData.append('alamat', regForm.alamat);
+    formData.append('kabupaten', geoResult?.kabupaten || manualKab);
+    formData.append('kecamatan', geoResult?.kecamatan || manualKec);
+
     if (regForm.paket_id) {
-      payload.paket_id = parseInt(regForm.paket_id);
+      formData.append('paket_id', regForm.paket_id);
+    }
+    if (fotoRumah) {
+      formData.append('foto_rumah', fotoRumah);
+    }
+    if (fotoKtp) {
+      formData.append('foto_ktp', fotoKtp);
     }
 
     fetch(`${API_URL}/api/registrations`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: formData,
     })
       .then(async (res) => {
         const data = await res.json();
         if (res.ok) {
           setRegSuccess(data.message);
           setRegForm({ nama: '', telepon: '', alamat: '', paket_id: '' });
+          setFotoRumah(null);
+          setFotoKtp(null);
           setShowRegForm(false);
         } else {
-          setRegError(data.message || 'Terjadi kesalahan saat mengirim data.');
+          let errorMsg = data.message || 'Terjadi kesalahan saat mengirim data.';
+          if (data.errors) {
+            const errs = Object.values(data.errors).flat();
+            if (errs.length > 0) errorMsg = errs.join(' ');
+          }
+          setRegError(errorMsg);
         }
         setRegLoading(false);
       })
@@ -504,6 +519,36 @@ function LandingPage() {
                         </option>
                       ))}
                     </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Camera size={13} /> Foto Rumah (opsional)
+                    </label>
+                    <input
+                      type="file"
+                      className="form-control"
+                      accept="image/*"
+                      onChange={(e) => setFotoRumah(e.target.files[0] || null)}
+                    />
+                    <small style={{ fontSize: '11px', color: 'var(--gray-500)', display: 'block', marginTop: '4px' }}>
+                      Format: JPG, JPEG, PNG (Maks 5MB)
+                    </small>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Camera size={13} /> Foto KTP (opsional)
+                    </label>
+                    <input
+                      type="file"
+                      className="form-control"
+                      accept="image/*"
+                      onChange={(e) => setFotoKtp(e.target.files[0] || null)}
+                    />
+                    <small style={{ fontSize: '11px', color: 'var(--gray-500)', display: 'block', marginTop: '4px' }}>
+                      Format: JPG, JPEG, PNG (Maks 5MB)
+                    </small>
                   </div>
 
                   {regError && (

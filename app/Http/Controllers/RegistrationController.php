@@ -36,22 +36,42 @@ class RegistrationController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'nama'      => 'required|string|max:100',
-            'telepon'   => 'required|string|max:20',
-            'alamat'    => 'required|string',
-            'kabupaten' => 'required|string|max:100',
-            'kecamatan' => 'required|string|max:100',
-            'paket_id'  => 'integer|exists:products,id',
+            'nama'       => 'required|string|max:100',
+            'telepon'    => 'required|string|max:20',
+            'alamat'     => 'required|string',
+            'kabupaten'  => 'required|string|max:100',
+            'kecamatan'  => 'required|string|max:100',
+            'paket_id'   => 'integer|exists:products,id',
+            'foto_rumah' => 'image|max:5120',
+            'foto_ktp'   => 'image|max:5120',
         ]);
 
-        $registration = Registration::query()->create([
-            'nama'      => $request->input('nama'),
-            'telepon'   => $request->input('telepon'),
-            'alamat'    => $request->input('alamat'),
-            'kabupaten' => $request->input('kabupaten'),
-            'kecamatan' => $request->input('kecamatan'),
-            'paket_id'  => $request->input('paket_id'),
-            'status'    => 'Baru',
+        $fotoRumahPath = null;
+        if ($request->hasFile('foto_rumah')) {
+            $file = $request->file('foto_rumah');
+            $filename = time() . '_rumah_' . str_replace(' ', '_', $file->getClientOriginalName());
+            $file->move(public_path('uploads/registrations'), $filename);
+            $fotoRumahPath = 'uploads/registrations/' . $filename;
+        }
+
+        $fotoKtpPath = null;
+        if ($request->hasFile('foto_ktp')) {
+            $file = $request->file('foto_ktp');
+            $filename = time() . '_ktp_' . str_replace(' ', '_', $file->getClientOriginalName());
+            $file->move(public_path('uploads/registrations'), $filename);
+            $fotoKtpPath = 'uploads/registrations/' . $filename;
+        }
+
+        $registration = Registration::create([
+            'nama'       => $request->input('nama'),
+            'telepon'    => $request->input('telepon'),
+            'alamat'     => $request->input('alamat'),
+            'kabupaten'  => $request->input('kabupaten'),
+            'kecamatan'  => $request->input('kecamatan'),
+            'paket_id'   => $request->input('paket_id') ?: null,
+            'foto_rumah' => $fotoRumahPath,
+            'foto_ktp'   => $fotoKtpPath,
+            'status'     => 'Baru',
         ]);
 
         // Eager load the product relation for the response

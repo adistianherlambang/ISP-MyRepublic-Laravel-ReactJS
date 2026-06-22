@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  LayoutDashboard, 
-  Map, 
-  Package, 
-  LogOut, 
-  Plus, 
-  Edit2, 
-  Trash2, 
-  Globe, 
-  Search, 
-  TrendingUp, 
+import {
+  LayoutDashboard,
+  Map,
+  Package,
+  LogOut,
+  Plus,
+  Edit2,
+  Trash2,
+  Globe,
+  Search,
+  TrendingUp,
   Lock,
   User,
   ArrowLeft,
@@ -37,7 +37,7 @@ import { API_URL } from '../App';
 function AdminDashboard() {
   const [token, setToken] = useState(localStorage.getItem('admin_token') || '');
   const [username, setUsername] = useState(localStorage.getItem('admin_username') || '');
-  
+
   // Login fields
   const [loginUser, setLoginUser] = useState('');
   const [loginPass, setLoginPass] = useState('');
@@ -108,6 +108,13 @@ function AdminDashboard() {
     }
   }, [token, regFilterStatus]);
 
+  const handleUnauthorized = () => {
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_username');
+    setToken('');
+    setUsername('');
+  };
+
   const fetchStats = () => {
     fetch(`${API_URL}/api/stats`)
       .then(res => res.json())
@@ -134,8 +141,16 @@ function AdminDashboard() {
     fetch(`${API_URL}/api/registrations${statusParam}`, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('admin_token') || ''}` }
     })
-      .then(res => res.json())
-      .then(data => setRegistrations(Array.isArray(data) ? data : []))
+      .then(res => {
+        if (res.status === 401) {
+          handleUnauthorized();
+          return null;
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (data) setRegistrations(Array.isArray(data) ? data : []);
+      })
       .catch(err => console.error(err));
   };
 
@@ -152,6 +167,10 @@ function AdminDashboard() {
       body: JSON.stringify({ status: regEditStatus, catatan: regEditCatatan }),
     })
       .then(async (res) => {
+        if (res.status === 401) {
+          handleUnauthorized();
+          return;
+        }
         if (res.ok) {
           fetchRegistrations();
           fetchStats();
@@ -172,6 +191,10 @@ function AdminDashboard() {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('admin_token') || ''}` }
     })
       .then(async (res) => {
+        if (res.status === 401) {
+          handleUnauthorized();
+          return;
+        }
         if (res.ok) { fetchRegistrations(); fetchStats(); }
         else { const d = await res.json(); alert(d.message || 'Gagal menghapus'); }
       })
@@ -278,6 +301,10 @@ function AdminDashboard() {
       })
     })
       .then(async (res) => {
+        if (res.status === 401) {
+          handleUnauthorized();
+          return;
+        }
         const data = await res.json();
         if (res.ok) {
           fetchCoverages();
@@ -299,6 +326,10 @@ function AdminDashboard() {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('admin_token') || ''}` }
     })
       .then(async (res) => {
+        if (res.status === 401) {
+          handleUnauthorized();
+          return;
+        }
         if (res.ok) {
           fetchCoverages();
           fetchStats();
@@ -349,6 +380,10 @@ function AdminDashboard() {
       })
     })
       .then(async (res) => {
+        if (res.status === 401) {
+          handleUnauthorized();
+          return;
+        }
         const data = await res.json();
         if (res.ok) {
           fetchProducts();
@@ -369,6 +404,10 @@ function AdminDashboard() {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('admin_token') || ''}` }
     })
       .then(async (res) => {
+        if (res.status === 401) {
+          handleUnauthorized();
+          return;
+        }
         if (res.ok) {
           fetchProducts();
           fetchStats();
@@ -407,9 +446,9 @@ function AdminDashboard() {
               <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <User size={13} /> Username
               </label>
-              <input 
-                type="text" 
-                className="form-control" 
+              <input
+                type="text"
+                className="form-control"
                 value={loginUser}
                 onChange={(e) => setLoginUser(e.target.value)}
                 required
@@ -420,9 +459,9 @@ function AdminDashboard() {
               <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Lock size={13} /> Password
               </label>
-              <input 
-                type="password" 
-                className="form-control" 
+              <input
+                type="password"
+                className="form-control"
                 value={loginPass}
                 onChange={(e) => setLoginPass(e.target.value)}
                 required
@@ -478,12 +517,12 @@ function AdminDashboard() {
           <Globe size={22} />
           MyR Admin
         </div>
-        
+
         <div className="sidebar-section-label">General</div>
         <ul className="sidebar-menu">
           <li>
-            <button 
-              onClick={() => { setActiveTab('overview'); setSidebarOpen(false); }} 
+            <button
+              onClick={() => { setActiveTab('overview'); setSidebarOpen(false); }}
               className={`sidebar-item-btn ${activeTab === 'overview' ? 'active' : ''}`}
             >
               <LayoutDashboard size={18} />
@@ -491,8 +530,8 @@ function AdminDashboard() {
             </button>
           </li>
           <li>
-            <button 
-              onClick={() => { setActiveTab('coverage'); setSidebarOpen(false); }} 
+            <button
+              onClick={() => { setActiveTab('coverage'); setSidebarOpen(false); }}
               className={`sidebar-item-btn ${activeTab === 'coverage' ? 'active' : ''}`}
             >
               <Map size={18} />
@@ -501,8 +540,8 @@ function AdminDashboard() {
             </button>
           </li>
           <li>
-            <button 
-              onClick={() => { setActiveTab('products'); setSidebarOpen(false); }} 
+            <button
+              onClick={() => { setActiveTab('products'); setSidebarOpen(false); }}
               className={`sidebar-item-btn ${activeTab === 'products' ? 'active' : ''}`}
             >
               <Package size={18} />
@@ -511,15 +550,16 @@ function AdminDashboard() {
             </button>
           </li>
           <li>
-            <button 
-              onClick={() => { setActiveTab('registrations'); setSidebarOpen(false); }} 
+            <button
+              onClick={() => { setActiveTab('registrations'); setSidebarOpen(false); }}
               className={`sidebar-item-btn ${activeTab === 'registrations' ? 'active' : ''}`}
             >
               <ClipboardList size={18} />
               Pendaftaran
-              {stats.new_registrations > 0 && (
+              <span className="item-badge" style={{ background: 'var(--danger-light)', color: 'var(--danger)' }}>{stats.total_registrations}</span>
+              {/* {stats.new_registrations > 0 && (
                 <span className="item-badge" style={{ background: 'var(--danger-light)', color: 'var(--danger)' }}>{stats.new_registrations}</span>
-              )}
+              )} */}
             </button>
           </li>
         </ul>
@@ -561,10 +601,10 @@ function AdminDashboard() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', flex: '1 1 auto', justifyContent: 'flex-end' }}>
             <div className="search-bar" style={{ flex: '1 1 180px', maxWidth: '280px', minWidth: '0' }}>
               <Search className="search-icon" size={16} />
-              <input 
-                type="text" 
-                className="form-control" 
-                placeholder="Search..." 
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search..."
                 style={{ paddingLeft: '38px', fontSize: '13px' }}
               />
             </div>
@@ -657,9 +697,9 @@ function AdminDashboard() {
             <div className="table-container">
               <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--gray-200)' }}>
                 <h4 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--dark)' }}>Data Coverage Terbaru</h4>
-                <button 
-                  onClick={() => setActiveTab('coverage')} 
-                  className="btn btn-secondary" 
+                <button
+                  onClick={() => setActiveTab('coverage')}
+                  className="btn btn-secondary"
                   style={{ fontSize: '12px', padding: '6px 14px' }}
                 >
                   View All
@@ -703,9 +743,9 @@ function AdminDashboard() {
             <div className="table-container" style={{ marginTop: '20px' }}>
               <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--gray-200)' }}>
                 <h4 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--dark)' }}>Pendaftaran Terbaru</h4>
-                <button 
-                  onClick={() => setActiveTab('registrations')} 
-                  className="btn btn-secondary" 
+                <button
+                  onClick={() => setActiveTab('registrations')}
+                  className="btn btn-secondary"
                   style={{ fontSize: '12px', padding: '6px 14px' }}
                 >
                   View All
@@ -728,16 +768,14 @@ function AdminDashboard() {
                       <td>{reg.telepon}</td>
                       <td>{reg.kecamatan}, {reg.kabupaten}</td>
                       <td>
-                        <span className={`badge ${
-                          reg.status === 'Baru' ? 'badge-info' :
+                        <span className={`badge ${reg.status === 'Baru' ? 'badge-info' :
                           reg.status === 'Diproses' ? 'badge-warning' :
-                          reg.status === 'Selesai' ? 'badge-success' : 'badge-danger'
-                        }`}>
-                          <span className={`status-dot ${
-                            reg.status === 'Baru' ? 'warning' :
+                            reg.status === 'Selesai' ? 'badge-success' : 'badge-danger'
+                          }`}>
+                          <span className={`status-dot ${reg.status === 'Baru' ? 'warning' :
                             reg.status === 'Diproses' ? 'warning' :
-                            reg.status === 'Selesai' ? 'success' : 'danger'
-                          }`}></span>
+                              reg.status === 'Selesai' ? 'success' : 'danger'
+                            }`}></span>
                           {reg.status}
                         </span>
                       </td>
@@ -759,12 +797,12 @@ function AdminDashboard() {
 
         {/* COVERAGE MANAGEMENT TAB */}
         {activeTab === 'coverage' && (() => {
-          const filteredCoverages = coverages.filter(cov => 
+          const filteredCoverages = coverages.filter(cov =>
             (cov.kabupaten && cov.kabupaten.toLowerCase().includes(searchQuery.toLowerCase())) ||
             (cov.kecamatan && cov.kecamatan.toLowerCase().includes(searchQuery.toLowerCase())) ||
             (cov.provinsi && cov.provinsi.toLowerCase().includes(searchQuery.toLowerCase()))
           );
-          
+
           const totalPages = Math.ceil(filteredCoverages.length / itemsPerPage) || 1;
           const page = Math.min(currentPage, totalPages);
           const startIndex = (page - 1) * itemsPerPage;
@@ -786,10 +824,10 @@ function AdminDashboard() {
               {/* Search bar */}
               <div className="search-bar" style={{ marginBottom: '4px', maxWidth: '400px' }}>
                 <Search className="search-icon" size={16} />
-                <input 
-                  type="text" 
-                  className="form-control" 
-                  placeholder="Cari Kabupaten / Kecamatan..." 
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Cari Kabupaten / Kecamatan..."
                   style={{ paddingLeft: '38px' }}
                   value={searchQuery}
                   onChange={(e) => {
@@ -861,14 +899,14 @@ function AdminDashboard() {
                   Menampilkan {paginatedCoverages.length} dari {filteredCoverages.length} wilayah
                 </span>
                 <div className="pagination-controls">
-                  <button 
+                  <button
                     className="page-btn"
                     onClick={() => setCurrentPage(1)}
                     disabled={page === 1}
                   >
                     <ChevronsLeft size={14} />
                   </button>
-                  <button 
+                  <button
                     className="page-btn"
                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                     disabled={page === 1}
@@ -878,14 +916,14 @@ function AdminDashboard() {
                   <span className="page-info">
                     {page} / {totalPages}
                   </span>
-                  <button 
+                  <button
                     className="page-btn"
                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                     disabled={page === totalPages}
                   >
                     <ChevronRight size={14} />
                   </button>
-                  <button 
+                  <button
                     className="page-btn"
                     onClick={() => setCurrentPage(totalPages)}
                     disabled={page === totalPages}
@@ -956,14 +994,14 @@ function AdminDashboard() {
 
         {/* REGISTRATION MANAGEMENT TAB */}
         {activeTab === 'registrations' && (() => {
-          const filteredRegs = registrations.filter(reg => 
+          const filteredRegs = registrations.filter(reg =>
             (reg.nama && reg.nama.toLowerCase().includes(regSearchQuery.toLowerCase())) ||
             (reg.telepon && reg.telepon.includes(regSearchQuery)) ||
             (reg.alamat && reg.alamat.toLowerCase().includes(regSearchQuery.toLowerCase())) ||
             (reg.kecamatan && reg.kecamatan.toLowerCase().includes(regSearchQuery.toLowerCase())) ||
             (reg.kabupaten && reg.kabupaten.toLowerCase().includes(regSearchQuery.toLowerCase()))
           );
-          
+
           const totalPages = Math.ceil(filteredRegs.length / itemsPerPage) || 1;
           const page = Math.min(regCurrentPage, totalPages);
           const startIndex = (page - 1) * itemsPerPage;
@@ -982,10 +1020,10 @@ function AdminDashboard() {
               <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
                 <div className="search-bar" style={{ flex: '1 1 300px', maxWidth: '400px', margin: 0 }}>
                   <Search className="search-icon" size={16} />
-                  <input 
-                    type="text" 
-                    className="form-control" 
-                    placeholder="Cari nama, telepon, alamat..." 
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Cari nama, telepon, alamat..."
                     style={{ paddingLeft: '38px' }}
                     value={regSearchQuery}
                     onChange={(e) => {
@@ -1051,16 +1089,14 @@ function AdminDashboard() {
                           )}
                         </td>
                         <td>
-                          <span className={`badge ${
-                            reg.status === 'Baru' ? 'badge-info' :
+                          <span className={`badge ${reg.status === 'Baru' ? 'badge-info' :
                             reg.status === 'Diproses' ? 'badge-warning' :
-                            reg.status === 'Selesai' ? 'badge-success' : 'badge-danger'
-                          }`}>
-                            <span className={`status-dot ${
-                              reg.status === 'Baru' ? 'info' :
+                              reg.status === 'Selesai' ? 'badge-success' : 'badge-danger'
+                            }`}>
+                            <span className={`status-dot ${reg.status === 'Baru' ? 'info' :
                               reg.status === 'Diproses' ? 'warning' :
-                              reg.status === 'Selesai' ? 'success' : 'danger'
-                            }`}></span>
+                                reg.status === 'Selesai' ? 'success' : 'danger'
+                              }`}></span>
                             {reg.status}
                           </span>
                         </td>
@@ -1096,14 +1132,14 @@ function AdminDashboard() {
                   Menampilkan {paginatedRegs.length} dari {filteredRegs.length} pendaftaran
                 </span>
                 <div className="pagination-controls">
-                  <button 
+                  <button
                     className="page-btn"
                     onClick={() => setRegCurrentPage(1)}
                     disabled={page === 1}
                   >
                     <ChevronsLeft size={14} />
                   </button>
-                  <button 
+                  <button
                     className="page-btn"
                     onClick={() => setRegCurrentPage(prev => Math.max(prev - 1, 1))}
                     disabled={page === 1}
@@ -1113,14 +1149,14 @@ function AdminDashboard() {
                   <span className="page-info">
                     {page} / {totalPages}
                   </span>
-                  <button 
+                  <button
                     className="page-btn"
                     onClick={() => setRegCurrentPage(prev => Math.min(prev + 1, totalPages))}
                     disabled={page === totalPages}
                   >
                     <ChevronRight size={14} />
                   </button>
-                  <button 
+                  <button
                     className="page-btn"
                     onClick={() => setRegCurrentPage(totalPages)}
                     disabled={page === totalPages}
@@ -1148,41 +1184,41 @@ function AdminDashboard() {
             <form onSubmit={handleSaveCoverage}>
               <div className="form-group">
                 <label className="form-label">Provinsi</label>
-                <input 
-                  type="text" 
-                  className="form-control" 
-                  value={covProvinsi} 
-                  onChange={(e) => setCovProvinsi(e.target.value)} 
-                  required 
+                <input
+                  type="text"
+                  className="form-control"
+                  value={covProvinsi}
+                  onChange={(e) => setCovProvinsi(e.target.value)}
+                  required
                 />
               </div>
               <div className="form-group">
                 <label className="form-label">Kabupaten / Kota</label>
-                <input 
-                  type="text" 
-                  className="form-control" 
+                <input
+                  type="text"
+                  className="form-control"
                   placeholder="cth: Bandar Lampung"
-                  value={covKabupaten} 
-                  onChange={(e) => setCovKabupaten(e.target.value)} 
-                  required 
+                  value={covKabupaten}
+                  onChange={(e) => setCovKabupaten(e.target.value)}
+                  required
                 />
               </div>
               <div className="form-group">
                 <label className="form-label">Kecamatan</label>
-                <input 
-                  type="text" 
-                  className="form-control" 
+                <input
+                  type="text"
+                  className="form-control"
                   placeholder="cth: Kedamaian"
-                  value={covKecamatan} 
-                  onChange={(e) => setCovKecamatan(e.target.value)} 
-                  required 
+                  value={covKecamatan}
+                  onChange={(e) => setCovKecamatan(e.target.value)}
+                  required
                 />
               </div>
               <div className="form-group">
                 <label className="form-label">Status Jaringan</label>
-                <select 
-                  className="form-control" 
-                  value={covStatus} 
+                <select
+                  className="form-control"
+                  value={covStatus}
                   onChange={(e) => setCovStatus(e.target.value)}
                 >
                   <option value="Belum Tersedia">Belum Tersedia</option>
@@ -1193,24 +1229,24 @@ function AdminDashboard() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
                 <div>
                   <label className="form-label">Latitude (Manual)</label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     step="any"
-                    className="form-control" 
+                    className="form-control"
                     placeholder="Auto-resolve"
-                    value={covLatitude} 
-                    onChange={(e) => setCovLatitude(e.target.value)} 
+                    value={covLatitude}
+                    onChange={(e) => setCovLatitude(e.target.value)}
                   />
                 </div>
                 <div>
                   <label className="form-label">Longitude (Manual)</label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     step="any"
-                    className="form-control" 
+                    className="form-control"
                     placeholder="Auto-resolve"
-                    value={covLongitude} 
-                    onChange={(e) => setCovLongitude(e.target.value)} 
+                    value={covLongitude}
+                    onChange={(e) => setCovLongitude(e.target.value)}
                   />
                 </div>
               </div>
@@ -1251,44 +1287,44 @@ function AdminDashboard() {
             <form onSubmit={handleSaveProduct}>
               <div className="form-group">
                 <label className="form-label">Nama Paket</label>
-                <input 
-                  type="text" 
-                  className="form-control" 
+                <input
+                  type="text"
+                  className="form-control"
                   placeholder="cth: Value 30"
-                  value={prodName} 
-                  onChange={(e) => setProdName(e.target.value)} 
-                  required 
+                  value={prodName}
+                  onChange={(e) => setProdName(e.target.value)}
+                  required
                 />
               </div>
               <div className="form-group">
                 <label className="form-label">Kecepatan</label>
-                <input 
-                  type="text" 
-                  className="form-control" 
+                <input
+                  type="text"
+                  className="form-control"
                   placeholder="cth: 30 Mbps"
-                  value={prodSpeed} 
-                  onChange={(e) => setProdSpeed(e.target.value)} 
-                  required 
+                  value={prodSpeed}
+                  onChange={(e) => setProdSpeed(e.target.value)}
+                  required
                 />
               </div>
               <div className="form-group">
                 <label className="form-label">Harga Bulanan (IDR)</label>
-                <input 
-                  type="number" 
-                  className="form-control" 
+                <input
+                  type="number"
+                  className="form-control"
                   placeholder="cth: 329000"
-                  value={prodPrice} 
-                  onChange={(e) => setProdPrice(e.target.value)} 
-                  required 
+                  value={prodPrice}
+                  onChange={(e) => setProdPrice(e.target.value)}
+                  required
                 />
               </div>
               <div className="form-group">
                 <label className="form-label">Deskripsi</label>
-                <textarea 
-                  className="form-control" 
+                <textarea
+                  className="form-control"
                   placeholder="Deskripsi spesifikasi paket..."
                   rows="3"
-                  value={prodDesc} 
+                  value={prodDesc}
                   onChange={(e) => setProdDesc(e.target.value)}
                 />
               </div>
@@ -1315,7 +1351,7 @@ function AdminDashboard() {
                 <ClipboardList size={20} color="#7E287B" />
                 Detail Pendaftaran Calon Pelanggan
               </h4>
-              <button 
+              <button
                 onClick={() => setShowRegDetailModal(false)}
                 style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--gray-500)' }}
               >
@@ -1357,6 +1393,83 @@ function AdminDashboard() {
                   <span style={{ fontSize: '14px', color: 'var(--gray-500)' }}>Tidak ada paket yang dipilih secara spesifik</span>
                 )}
               </div>
+
+              <div style={{ gridColumn: 'span 2', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '8px' }}>
+                <div>
+                  <span style={{ fontSize: '12px', color: 'var(--gray-500)', display: 'block', marginBottom: '6px' }}>Foto Rumah</span>
+                  {selectedReg.foto_rumah ? (
+                    <a href={`${API_URL}/${selectedReg.foto_rumah}`} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>
+                      <img 
+                        src={`${API_URL}/${selectedReg.foto_rumah}`} 
+                        alt="Foto Rumah" 
+                        style={{ 
+                          width: '100%', 
+                          height: '120px', 
+                          objectFit: 'cover', 
+                          borderRadius: 'var(--radius-sm)', 
+                          border: '1px solid var(--gray-200)',
+                          cursor: 'pointer',
+                          transition: 'transform 0.2s',
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                      />
+                    </a>
+                  ) : (
+                    <div style={{ 
+                      width: '100%', 
+                      height: '120px', 
+                      background: 'var(--gray-50)', 
+                      borderRadius: 'var(--radius-sm)', 
+                      border: '1px dashed var(--gray-300)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'var(--gray-400)',
+                      fontSize: '13px'
+                    }}>
+                      Tidak diunggah
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <span style={{ fontSize: '12px', color: 'var(--gray-500)', display: 'block', marginBottom: '6px' }}>Foto KTP</span>
+                  {selectedReg.foto_ktp ? (
+                    <a href={`${API_URL}/${selectedReg.foto_ktp}`} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>
+                      <img 
+                        src={`${API_URL}/${selectedReg.foto_ktp}`} 
+                        alt="Foto KTP" 
+                        style={{ 
+                          width: '100%', 
+                          height: '120px', 
+                          objectFit: 'cover', 
+                          borderRadius: 'var(--radius-sm)', 
+                          border: '1px solid var(--gray-200)',
+                          cursor: 'pointer',
+                          transition: 'transform 0.2s',
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                      />
+                    </a>
+                  ) : (
+                    <div style={{ 
+                      width: '100%', 
+                      height: '120px', 
+                      background: 'var(--gray-50)', 
+                      borderRadius: 'var(--radius-sm)', 
+                      border: '1px dashed var(--gray-300)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'var(--gray-400)',
+                      fontSize: '13px'
+                    }}>
+                      Tidak diunggah
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             <hr style={{ border: 0, borderTop: '1px solid var(--gray-200)', margin: '20px 0' }} />
@@ -1366,7 +1479,7 @@ function AdminDashboard() {
             <form onSubmit={(e) => { e.preventDefault(); handleUpdateRegStatus(); }}>
               <div className="form-group">
                 <label className="form-label">Status Tindak Lanjut</label>
-                <select 
+                <select
                   className="form-control"
                   value={regEditStatus}
                   onChange={(e) => setRegEditStatus(e.target.value)}
@@ -1381,7 +1494,7 @@ function AdminDashboard() {
 
               <div className="form-group">
                 <label className="form-label">Catatan Internal / Riwayat Survei</label>
-                <textarea 
+                <textarea
                   className="form-control"
                   rows="3"
                   placeholder="Masukkan catatan perkembangan pemasangan atau alasan penolakan..."
@@ -1392,24 +1505,24 @@ function AdminDashboard() {
 
               {/* WhatsApp Link Shortcuts */}
               <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-                <a 
+                <a
                   href={`https://wa.me/${selectedReg.telepon.replace(/[^0-9]/g, '').replace(/^0/, '62')}?text=${encodeURIComponent(
                     `Halo ${selectedReg.nama}, kami dari MyRepublic Lampung ingin mengonfirmasi pendaftaran pasang baru internet Anda di alamat: ${selectedReg.alamat}.`
                   )}`}
-                  target="_blank" 
+                  target="_blank"
                   rel="noopener noreferrer"
-                  className="btn btn-secondary" 
+                  className="btn btn-secondary"
                   style={{ flex: 1, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '12px', borderColor: '#25D366', color: '#25D366' }}
                 >
                   <Phone size={14} /> Hubungi Pelanggan (WA)
                 </a>
-                <a 
+                <a
                   href={`https://wa.me/?text=${encodeURIComponent(
                     `*INFO CALON PELANGGAN BARU - MYREPUBLIC LAMPUNG*\n\nNama: ${selectedReg.nama}\nTelepon: ${selectedReg.telepon}\nAlamat: ${selectedReg.alamat}\nKecamatan: ${selectedReg.kecamatan}\nKabupaten: ${selectedReg.kabupaten}\nPaket Pilihan: ${selectedReg.product ? `${selectedReg.product.nama_paket} (${selectedReg.product.kecepatan})` : 'Pilih nanti'}\n\nMohon ditindaklanjuti untuk survei lokasi dan pemasangan.`
                   )}`}
-                  target="_blank" 
+                  target="_blank"
                   rel="noopener noreferrer"
-                  className="btn btn-secondary" 
+                  className="btn btn-secondary"
                   style={{ flex: 1, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '12px', borderColor: '#7E287B', color: '#7E287B' }}
                 >
                   <Send size={14} /> Teruskan ke Sales (WA)
