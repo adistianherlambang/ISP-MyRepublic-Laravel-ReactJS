@@ -26,7 +26,7 @@ class AuthController extends Controller
         // Hash using MD5 to match the original database structure
         $hashedPassword = md5($password);
 
-        $admin = Admin::where('username', $username)
+        $admin = Admin::query()->where('username', $username)
                       ->where('password', $hashedPassword)
                       ->first();
 
@@ -78,11 +78,11 @@ class AuthController extends Controller
      */
     public function stats()
     {
-        $totalProducts = Product::count();
-        $totalCoverages = Coverage::count();
-        $availableCoverages = Coverage::where('status', 'Tersedia')->count();
-        $totalRegistrations = Registration::count();
-        $newRegistrations = Registration::where('status', 'Baru')->count();
+        $totalProducts = Product::query()->count();
+        $totalCoverages = Coverage::query()->count();
+        $availableCoverages = Coverage::query()->where('status', 'Tersedia')->count();
+        $totalRegistrations = Registration::query()->count();
+        $newRegistrations = Registration::query()->where('status', 'Baru')->count();
 
         return response()->json([
             'total_products' => $totalProducts,

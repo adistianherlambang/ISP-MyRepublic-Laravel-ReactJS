@@ -14,7 +14,7 @@ class RegistrationController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Registration::with('product');
+        $query = Registration::query()->with('product');
 
         // Optional status filter
         if ($request->has('status') && $request->input('status') !== '') {
@@ -44,7 +44,7 @@ class RegistrationController extends Controller
             'paket_id'  => 'integer|exists:products,id',
         ]);
 
-        $registration = Registration::create([
+        $registration = Registration::query()->create([
             'nama'      => $request->input('nama'),
             'telepon'   => $request->input('telepon'),
             'alamat'    => $request->input('alamat'),
@@ -71,7 +71,7 @@ class RegistrationController extends Controller
      */
     public function show($id)
     {
-        $registration = Registration::with('product')->find($id);
+        $registration = Registration::query()->with('product')->find($id);
 
         if (!$registration) {
             return response()->json(['message' => 'Pendaftaran tidak ditemukan'], 404);
@@ -89,7 +89,7 @@ class RegistrationController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $registration = Registration::find($id);
+        $registration = Registration::query()->find($id);
 
         if (!$registration) {
             return response()->json(['message' => 'Pendaftaran tidak ditemukan'], 404);
@@ -124,7 +124,7 @@ class RegistrationController extends Controller
      */
     public function destroy($id)
     {
-        $registration = Registration::find($id);
+        $registration = Registration::query()->find($id);
 
         if (!$registration) {
             return response()->json(['message' => 'Pendaftaran tidak ditemukan'], 404);
