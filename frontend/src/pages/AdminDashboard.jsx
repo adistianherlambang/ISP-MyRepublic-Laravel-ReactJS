@@ -491,9 +491,8 @@ function AdminDashboard() {
     <div className="dashboard-layout">
       {/* Mobile Top Bar */}
       <div className="mobile-admin-bar">
-        <div className="sidebar-logo">
-          <Globe size={20} />
-          MyR Admin
+        <div className="sidebar-logo" style={{ display: 'flex', alignItems: 'center' }}>
+          <img src="/logoMyRepublic.png" alt="MyRepublic Logo" style={{ height: '24px', objectFit: 'contain' }} />
         </div>
         <button
           className="mobile-menu-btn"
@@ -513,9 +512,8 @@ function AdminDashboard() {
 
       {/* Sidebar Navigation (Reference Image 1 style) */}
       <aside className={`sidebar${sidebarOpen ? ' open' : ''}`}>
-        <div className="sidebar-logo">
-          <Globe size={22} />
-          MyR Admin
+        <div className="sidebar-logo" style={{ display: 'flex', alignItems: 'center', paddingBottom: '20px', borderBottom: '1px solid var(--gray-200)', marginBottom: '16px' }}>
+          <img src="/logoMyRepublic.png" alt="MyRepublic Logo" style={{ height: '28px', objectFit: 'contain' }} />
         </div>
 
         <div className="sidebar-section-label">General</div>

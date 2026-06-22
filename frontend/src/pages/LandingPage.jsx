@@ -282,9 +282,8 @@ function LandingPage() {
       {/* Clean White Navbar (Reference Image 2 style) */}
       <div className="container">
         <header className="floating-navbar">
-          <a href="#" className="nav-logo">
-            <Wifi size={20} color="#7E287B" />
-            MyRepublic <span style={{ color: '#7E287B' }}>Lampung</span>
+          <a href="#" className="nav-logo" style={{ display: 'flex', alignItems: 'center' }}>
+            <img src="/logoMyRepublic.png" alt="MyRepublic Lampung" style={{ height: '36px', objectFit: 'contain' }} />
           </a>
           <button
             className="mobile-menu-btn"
@@ -400,7 +399,6 @@ function LandingPage() {
               <div className={`result-card animate-fade-in ${geoResult.status === 'Tersedia' ? 'success' : 'danger'}`}>
                 {geoResult.status === 'Tersedia' ? (
                   <>
-                    <CheckCircle size={40} color="#22c55e" />
                     <div>
                       <h4 style={{ color: '#22c55e' }}>Layanan TERSEDIA!</h4>
                       <p>
@@ -413,7 +411,6 @@ function LandingPage() {
                         style={{ background: '#7E287B', marginTop: '8px' }}
                         onClick={() => { setShowRegForm(true); setRegSuccess(null); }}
                       >
-                        <UserPlus size={16} />
                         Daftar Sekarang
                       </button>
                     )}
@@ -435,7 +432,6 @@ function LandingPage() {
             {/* Registration Success Feedback */}
             {regSuccess && (
               <div className="result-card success animate-fade-in" style={{ marginTop: '12px' }}>
-                <CheckCircle size={32} color="#22c55e" />
                 <div>
                   <h4 style={{ color: '#22c55e' }}>Pendaftaran Berhasil!</h4>
                   <p>{regSuccess}</p>
@@ -793,9 +789,8 @@ function LandingPage() {
       {/* Mobile Sidebar Drawer (slides in like admin sidebar) */}
       <aside className={`landing-sidebar${mobileMenuOpen ? ' open' : ''}`}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid var(--gray-200)' }}>
-          <div className="nav-logo" style={{ fontSize: '16px' }}>
-            <Wifi size={20} color="#7E287B" />
-            MyRepublic <span style={{ color: '#7E287B' }}>Lampung</span>
+          <div className="nav-logo" style={{ display: 'flex', alignItems: 'center' }}>
+            <img src="/logoMyRepublic.png" alt="MyRepublic Lampung" style={{ height: '30px', objectFit: 'contain' }} />
           </div>
           <button
             type="button"
