@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, GeoJSON, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
-import { MapPin, Search, Compass, Shield, Wifi, Zap, CheckCircle, XCircle, ArrowRight, Laptop, Star, Menu, X, Send, UserPlus, Phone, Home, Camera } from 'lucide-react';
+import { MapPin, Search, Compass, Shield, Wifi, Zap, CheckCircle, XCircle, ArrowRight, Laptop, Star, Menu, X, Send, UserPlus, Phone, Home, Camera, User } from 'lucide-react';
 import { API_URL } from '../App';
 import L from 'leaflet';
 
@@ -311,15 +311,6 @@ function LandingPage() {
       {/* Hero Section (Reference Image 2 style - centered, clean) */}
       <section className="hero-section">
         <div className="container">
-          {/* Review badge like reference */}
-          <div className="review-badge animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            <div className="stars">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} size={14} fill="#7E287B" strokeWidth={0} />
-              ))}
-            </div>
-            <span>Dipercaya oleh <strong style={{ color: '#111' }}>1,200+</strong> pelanggan di Lampung</span>
-          </div>
 
           <h1 className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
             Nikmati Internet Stabil & Tanpa Batas di Rumah Anda
@@ -794,7 +785,7 @@ function LandingPage() {
       )}
 
       {/* Mobile Sidebar Overlay (active when open) */}
-      <div 
+      <div
         className={`landing-sidebar-overlay${mobileMenuOpen ? ' active' : ''}`}
         onClick={() => setMobileMenuOpen(false)}
       />
@@ -806,7 +797,7 @@ function LandingPage() {
             <Wifi size={20} color="#7E287B" />
             MyRepublic <span style={{ color: '#7E287B' }}>Lampung</span>
           </div>
-          <button 
+          <button
             type="button"
             onClick={() => setMobileMenuOpen(false)}
             style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--gray-500)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px' }}
@@ -816,36 +807,36 @@ function LandingPage() {
         </div>
 
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <a 
-            href="#coverage-section" 
-            className="nav-link" 
+          <a
+            href="#coverage-section"
+            className="nav-link"
             style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: 'var(--radius-sm)', textDecoration: 'none', fontWeight: 500 }}
             onClick={() => setMobileMenuOpen(false)}
           >
             <MapPin size={16} color="#7E287B" />
             Coverage
           </a>
-          <a 
-            href="#products-section" 
-            className="nav-link" 
+          <a
+            href="#products-section"
+            className="nav-link"
             style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: 'var(--radius-sm)', textDecoration: 'none', fontWeight: 500 }}
             onClick={() => setMobileMenuOpen(false)}
           >
             <Compass size={16} color="#7E287B" />
             Paket Internet
           </a>
-          <a 
-            href="#stats-section" 
-            className="nav-link" 
+          <a
+            href="#stats-section"
+            className="nav-link"
             style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: 'var(--radius-sm)', textDecoration: 'none', fontWeight: 500 }}
             onClick={() => setMobileMenuOpen(false)}
           >
             <Zap size={16} color="#7E287B" />
             Statistik
           </a>
-          <a 
-            href="#admin" 
-            className="btn btn-primary" 
+          <a
+            href="#admin"
+            className="btn btn-primary"
             style={{ background: '#7E287B', color: '#fff', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '12px', marginTop: '16px', borderRadius: 'var(--radius-md)', textDecoration: 'none', fontWeight: 600 }}
             onClick={() => setMobileMenuOpen(false)}
           >
