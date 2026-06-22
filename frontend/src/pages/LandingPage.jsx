@@ -455,135 +455,7 @@ function LandingPage() {
               </div>
             )}
 
-            {/* Registration Form (appears after clicking "Daftar Sekarang") */}
-            {showRegForm && geoResult?.status === 'Tersedia' && (
-              <div className="glass-card animate-fade-in" style={{ marginTop: '16px', padding: '24px' }}>
-                <h4 style={{ fontSize: '16px', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <UserPlus size={18} color="#7E287B" />
-                  Formulir Pendaftaran
-                </h4>
-                <p style={{ fontSize: '13px', color: 'var(--gray-500)', marginBottom: '20px' }}>
-                  Wilayah: <strong>{geoResult.kecamatan}</strong>, {geoResult.kabupaten}
-                </p>
 
-                <form onSubmit={handleRegistration}>
-                  <div className="form-group">
-                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <UserPlus size={13} /> Nama Lengkap
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Masukkan nama lengkap Anda"
-                      value={regForm.nama}
-                      onChange={(e) => setRegForm({ ...regForm, nama: e.target.value })}
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <Phone size={13} /> Nomor Telepon / WhatsApp
-                    </label>
-                    <input
-                      type="tel"
-                      className="form-control"
-                      placeholder="Contoh: 08123456789"
-                      value={regForm.telepon}
-                      onChange={(e) => setRegForm({ ...regForm, telepon: e.target.value })}
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <Home size={13} /> Alamat Lengkap
-                    </label>
-                    <textarea
-                      className="form-control"
-                      placeholder="Jalan, RT/RW, Kelurahan/Desa"
-                      rows={3}
-                      style={{ resize: 'vertical' }}
-                      value={regForm.alamat}
-                      onChange={(e) => setRegForm({ ...regForm, alamat: e.target.value })}
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Pilih Paket (opsional)</label>
-                    <select
-                      className="form-control"
-                      value={regForm.paket_id}
-                      onChange={(e) => setRegForm({ ...regForm, paket_id: e.target.value })}
-                    >
-                      <option value="">— Pilih nanti —</option>
-                      {products.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.nama_paket} — {p.kecepatan} — Rp {Number(p.harga).toLocaleString('id-ID')}/bln
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <Camera size={13} /> Foto Rumah (opsional)
-                    </label>
-                    <input
-                      type="file"
-                      className="form-control"
-                      accept="image/*"
-                      onChange={(e) => setFotoRumah(e.target.files[0] || null)}
-                    />
-                    <small style={{ fontSize: '11px', color: 'var(--gray-500)', display: 'block', marginTop: '4px' }}>
-                      Format: JPG, JPEG, PNG (Maks 5MB)
-                    </small>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <Camera size={13} /> Foto KTP (opsional)
-                    </label>
-                    <input
-                      type="file"
-                      className="form-control"
-                      accept="image/*"
-                      onChange={(e) => setFotoKtp(e.target.files[0] || null)}
-                    />
-                    <small style={{ fontSize: '11px', color: 'var(--gray-500)', display: 'block', marginTop: '4px' }}>
-                      Format: JPG, JPEG, PNG (Maks 5MB)
-                    </small>
-                  </div>
-
-                  {regError && (
-                    <div className="error-message" style={{ marginBottom: '12px' }}>
-                      <XCircle size={16} style={{ flexShrink: 0 }} />
-                      <span>{regError}</span>
-                    </div>
-                  )}
-
-                  <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
-                    <button
-                      type="submit"
-                      className="btn btn-primary"
-                      style={{ background: '#7E287B', flex: 1 }}
-                      disabled={regLoading}
-                    >
-                      <Send size={14} />
-                      {regLoading ? 'Mengirim...' : 'Kirim Pendaftaran'}
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={() => { setShowRegForm(false); setRegError(null); }}
-                    >
-                      Batal
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
           </div>
 
           {/* Interactive Map */}
@@ -708,10 +580,24 @@ function LandingPage() {
                   {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(prod.harga)}
                   <span> /bulan</span>
                 </div>
-                <button className="btn btn-primary" style={{ background: '#7E287B' }}>
+                <a
+                  href="#coverage-section"
+                  className="btn btn-primary"
+                  style={{
+                    background: '#7E287B',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    textDecoration: 'none'
+                  }}
+                  onClick={() => {
+                    setRegForm(prev => ({ ...prev, paket_id: prod.id }));
+                  }}
+                >
                   Langganan Sekarang
                   <ArrowRight size={14} />
-                </button>
+                </a>
               </div>
             ))}
           </div>
@@ -765,6 +651,147 @@ function LandingPage() {
           &copy; {new Date().getFullYear()} MyRepublic Lampung. All rights reserved.
         </div>
       </footer>
+
+      {/* Registration Form Popup Modal (rendered at the root to avoid transform container limitations) */}
+      {showRegForm && geoResult?.status === 'Tersedia' && (
+        <div className="modal-overlay" onClick={() => { setShowRegForm(false); setRegError(null); }}>
+          <div className="modal-card" style={{ maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid var(--gray-200)', paddingBottom: '12px' }}>
+              <h4 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontSize: '18px', fontWeight: 700 }}>
+                <UserPlus size={20} color="#7E287B" />
+                Formulir Pendaftaran
+              </h4>
+              <button 
+                type="button"
+                onClick={() => { setShowRegForm(false); setRegError(null); }}
+                style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--gray-500)' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <p style={{ fontSize: '13px', color: 'var(--gray-500)', marginBottom: '20px' }}>
+              Wilayah: <strong>{geoResult.kecamatan}</strong>, {geoResult.kabupaten}
+            </p>
+
+            <form onSubmit={handleRegistration}>
+              <div className="form-group">
+                <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <UserPlus size={13} /> Nama Lengkap
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Masukkan nama lengkap Anda"
+                  value={regForm.nama}
+                  onChange={(e) => setRegForm({ ...regForm, nama: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Phone size={13} /> Nomor Telepon / WhatsApp
+                </label>
+                <input
+                  type="tel"
+                  className="form-control"
+                  placeholder="Contoh: 08123456789"
+                  value={regForm.telepon}
+                  onChange={(e) => setRegForm({ ...regForm, telepon: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Home size={13} /> Alamat Lengkap
+                </label>
+                <textarea
+                  className="form-control"
+                  placeholder="Jalan, RT/RW, Kelurahan/Desa"
+                  rows={3}
+                  style={{ resize: 'vertical' }}
+                  value={regForm.alamat}
+                  onChange={(e) => setRegForm({ ...regForm, alamat: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Pilih Paket (opsional)</label>
+                <select
+                  className="form-control"
+                  value={regForm.paket_id}
+                  onChange={(e) => setRegForm({ ...regForm, paket_id: e.target.value })}
+                >
+                  <option value="">— Pilih nanti —</option>
+                  {products.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nama_paket} — {p.kecepatan} — Rp {Number(p.harga).toLocaleString('id-ID')}/bln
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Camera size={13} /> Foto Rumah (opsional)
+                </label>
+                <input
+                  type="file"
+                  className="form-control"
+                  accept="image/*"
+                  onChange={(e) => setFotoRumah(e.target.files[0] || null)}
+                />
+                <small style={{ fontSize: '11px', color: 'var(--gray-500)', display: 'block', marginTop: '4px' }}>
+                  Format: JPG, JPEG, PNG (Maks 5MB)
+                </small>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Camera size={13} /> Foto KTP (opsional)
+                </label>
+                <input
+                  type="file"
+                  className="form-control"
+                  accept="image/*"
+                  onChange={(e) => setFotoKtp(e.target.files[0] || null)}
+                />
+                <small style={{ fontSize: '11px', color: 'var(--gray-500)', display: 'block', marginTop: '4px' }}>
+                  Format: JPG, JPEG, PNG (Maks 5MB)
+                </small>
+              </div>
+
+              {regError && (
+                <div className="error-message" style={{ marginBottom: '12px' }}>
+                  <XCircle size={16} style={{ flexShrink: 0 }} />
+                  <span>{regError}</span>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{ background: '#7E287B', flex: 1 }}
+                  disabled={regLoading}
+                >
+                  <Send size={14} />
+                  {regLoading ? 'Mengirim...' : 'Kirim Pendaftaran'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => { setShowRegForm(false); setRegError(null); }}
+                >
+                  Batal
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
