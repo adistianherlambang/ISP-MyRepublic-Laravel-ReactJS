@@ -437,7 +437,7 @@ function AdminDashboard() {
             <div className="login-icon">
               <Lock size={28} />
             </div>
-            <h3 style={{ fontSize: '22px', color: 'var(--dark)', marginBottom: '4px' }}>Admin Sign In</h3>
+            <h3 style={{ fontSize: '22px', color: 'var(--dark)', marginBottom: '4px', whiteSpace: 'nowrap' }}>Admin Sign In</h3>
             <p style={{ fontSize: '13px', color: 'var(--gray-500)' }}>Masukkan akun administrator MyRepublic Anda.</p>
           </div>
 
@@ -719,7 +719,6 @@ function AdminDashboard() {
                       <td>{cov.kecamatan}</td>
                       <td>
                         <span className={`badge ${cov.status === 'Tersedia' ? 'badge-success' : 'badge-danger'}`}>
-                          <span className={`status-dot ${cov.status === 'Tersedia' ? 'success' : 'danger'}`}></span>
                           {cov.status}
                         </span>
                       </td>
@@ -770,10 +769,6 @@ function AdminDashboard() {
                           reg.status === 'Diproses' ? 'badge-warning' :
                             reg.status === 'Selesai' ? 'badge-success' : 'badge-danger'
                           }`}>
-                          <span className={`status-dot ${reg.status === 'Baru' ? 'warning' :
-                            reg.status === 'Diproses' ? 'warning' :
-                              reg.status === 'Selesai' ? 'success' : 'danger'
-                            }`}></span>
                           {reg.status}
                         </span>
                       </td>
@@ -854,7 +849,6 @@ function AdminDashboard() {
                         <td>{cov.kecamatan}</td>
                         <td>
                           <span className={`badge ${cov.status === 'Tersedia' ? 'badge-success' : 'badge-danger'}`}>
-                            <span className={`status-dot ${cov.status === 'Tersedia' ? 'success' : 'danger'}`}></span>
                             {cov.status}
                           </span>
                         </td>
@@ -1090,10 +1084,6 @@ function AdminDashboard() {
                             reg.status === 'Diproses' ? 'badge-warning' :
                               reg.status === 'Selesai' ? 'badge-success' : 'badge-danger'
                             }`}>
-                            <span className={`status-dot ${reg.status === 'Baru' ? 'info' :
-                              reg.status === 'Diproses' ? 'warning' :
-                                reg.status === 'Selesai' ? 'success' : 'danger'
-                              }`}></span>
                             {reg.status}
                           </span>
                         </td>

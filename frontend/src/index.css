@@ -1204,11 +1204,6 @@ select.form-control {
     width: 100%;
   }
 
-  /* Login card */
-  .login-card {
-    padding: 28px 20px;
-  }
-
   /* Search bar in coverage tab */
   .search-bar {
     max-width: 100%;
@@ -1346,11 +1341,6 @@ select.form-control {
 
   .modal-card h4 {
     font-size: 16px;
-  }
-
-  /* Login */
-  .login-card {
-    padding: 24px 16px;
   }
 
   .login-card h3 {
@@ -1756,13 +1746,8 @@ select.form-control {
 }
 
 .login-card {
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  border-radius: var(--radius-lg);
-  padding: 40px;
   width: 100%;
   max-width: 400px;
-  box-shadow: var(--shadow-md);
 }
 
 .login-icon {
