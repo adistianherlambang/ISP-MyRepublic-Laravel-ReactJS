@@ -597,18 +597,6 @@ function AdminDashboard() {
             <span className="current">{tabLabels[activeTab]}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', flex: '1 1 auto', justifyContent: 'flex-end' }}>
-            <div className="search-bar" style={{ flex: '1 1 180px', maxWidth: '280px', minWidth: '0' }}>
-              <Search className="search-icon" size={16} />
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search..."
-                style={{ paddingLeft: '38px', fontSize: '13px' }}
-              />
-            </div>
-            <button style={{ width: '36px', height: '36px', border: '1px solid var(--gray-200)', borderRadius: 'var(--radius-sm)', background: 'var(--white)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--gray-500)', flexShrink: 0 }}>
-              <Bell size={16} />
-            </button>
             <div className="sidebar-user-avatar" style={{ width: '32px', height: '32px', fontSize: '12px', borderRadius: 'var(--radius-full)', cursor: 'pointer', flexShrink: 0 }}>
               {username.charAt(0).toUpperCase()}
             </div>

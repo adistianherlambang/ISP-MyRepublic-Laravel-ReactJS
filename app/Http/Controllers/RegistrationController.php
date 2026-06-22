@@ -14,11 +14,11 @@ class RegistrationController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Registration::query()->with('product');
+        $query = Registration::with('product');
 
         // Optional status filter
         if ($request->has('status') && $request->input('status') !== '') {
-            $query->where('status', $request->input('status'));
+            $query->where(['status' => $request->input('status')]);
         }
 
         // Order by newest first
@@ -30,7 +30,7 @@ class RegistrationController extends Controller
     /**
      * Store a new registration from a potential customer (public).
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
@@ -91,7 +91,7 @@ class RegistrationController extends Controller
      */
     public function show($id)
     {
-        $registration = Registration::query()->with('product')->find($id);
+        $registration = Registration::with('product')->find($id);
 
         if (!$registration) {
             return response()->json(['message' => 'Pendaftaran tidak ditemukan'], 404);
@@ -103,13 +103,13 @@ class RegistrationController extends Controller
     /**
      * Update registration status and notes (admin only).
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, $id)
     {
-        $registration = Registration::query()->find($id);
+        $registration = Registration::find($id);
 
         if (!$registration) {
             return response()->json(['message' => 'Pendaftaran tidak ditemukan'], 404);
@@ -144,7 +144,7 @@ class RegistrationController extends Controller
      */
     public function destroy($id)
     {
-        $registration = Registration::query()->find($id);
+        $registration = Registration::find($id);
 
         if (!$registration) {
             return response()->json(['message' => 'Pendaftaran tidak ditemukan'], 404);
