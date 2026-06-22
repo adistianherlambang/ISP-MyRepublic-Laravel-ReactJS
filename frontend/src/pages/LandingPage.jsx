@@ -108,10 +108,10 @@ function LandingPage() {
             const addr = data.address;
             // Parse kabupaten and kecamatan from Nominatim payload
             const kabupaten = addr.city || addr.town || addr.municipality || addr.regency || addr.county || '';
-            const kecamatan = addr.suburb || addr.city_district || addr.district || addr.village || addr.neighbourhood || '';
+            const kecamatan = addr.city_district || addr.district || addr.subdistrict || addr.suburb || addr.village || addr.neighbourhood || '';
 
             if (kabupaten && kecamatan) {
-              checkCoverageAPI(kabupaten, kecamatan);
+              checkCoverageAPI(kabupaten, kecamatan, latitude, longitude);
             } else {
               setGeoError(`Lokasi terdeteksi (${latitude.toFixed(4)}, ${longitude.toFixed(4)}), silakan ketik wilayah Anda secara manual.`);
               setGeoLoading(false);
@@ -138,24 +138,29 @@ function LandingPage() {
     );
   };
 
-  const checkCoverageAPI = (kabupaten, kecamatan) => {
+  const checkCoverageAPI = (kabupaten, kecamatan, lat = null, lon = null) => {
     setGeoLoading(true);
     setGeoError(null);
+
+    const payload = { kabupaten, kecamatan };
+    if (lat !== null && lon !== null) {
+      payload.latitude = lat;
+      payload.longitude = lon;
+    }
 
     fetch(`${API_URL}/api/coverage/check`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ kabupaten, kecamatan }),
+      body: JSON.stringify(payload),
     })
       .then(res => res.json())
       .then(data => {
         setGeoResult({
-
           status: data.status,
-          kabupaten: kabupaten,
-          kecamatan: kecamatan,
+          kabupaten: data.coverage ? data.coverage.kabupaten : kabupaten,
+          kecamatan: data.coverage ? data.coverage.kecamatan : kecamatan,
           details: data.coverage
         });
 

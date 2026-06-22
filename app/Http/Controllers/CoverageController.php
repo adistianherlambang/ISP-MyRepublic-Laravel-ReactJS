@@ -180,6 +180,8 @@ class CoverageController extends Controller
 
         $kab = trim($request->input('kabupaten'));
         $kec = trim($request->input('kecamatan'));
+        $lat = $request->input('latitude');
+        $lon = $request->input('longitude');
 
         // Normalize keywords
         $kabClean = preg_replace('/^(kabupaten|kota|kab\.|kotamadya)\s+/i', '', $kab);
@@ -189,6 +191,28 @@ class CoverageController extends Controller
         $coverage = Coverage::where('kabupaten', 'LIKE', '%' . $kabClean . '%')
                             ->where('kecamatan', 'LIKE', '%' . $kecClean . '%')
                             ->first();
+
+        // Spatial fallback if name search fails and coordinates are provided
+        if (!$coverage && is_numeric($lat) && is_numeric($lon)) {
+            $coverages = Coverage::all();
+            $nearest = null;
+            $minDistance = 999999;
+
+            foreach ($coverages as $cov) {
+                if ($cov->latitude !== null && $cov->longitude !== null) {
+                    $dist = sqrt(pow($cov->latitude - $lat, 2) + pow($cov->longitude - $lon, 2));
+                    if ($dist < $minDistance) {
+                        $minDistance = $dist;
+                        $nearest = $cov;
+                    }
+                }
+            }
+
+            // If the closest coverage area center is within 0.15 degrees (~15 km)
+            if ($nearest && $minDistance < 0.15) {
+                $coverage = $nearest;
+            }
+        }
 
         if ($coverage) {
             return response()->json([
