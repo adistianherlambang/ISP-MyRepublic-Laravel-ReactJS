@@ -993,28 +993,7 @@ select.form-control {
   }
 
   .nav-links {
-    display: none;
-    flex-direction: column;
-    width: 100%;
-    gap: 4px;
-    padding-top: 12px;
-    border-top: 1px solid var(--gray-200);
-    margin-top: 12px;
-  }
-
-  .nav-links.open {
-    display: flex;
-  }
-
-  .nav-link {
-    width: 100%;
-    padding: 10px 12px;
-    border-radius: var(--radius-sm);
-  }
-
-  .nav-links .btn {
-    width: 100%;
-    margin-top: 4px;
+    display: none !important;
   }
 
   /* ---- HERO ---- */
@@ -1847,7 +1826,7 @@ select.form-control {
 /* Search bar */
 .search-bar {
   position: relative;
-  max-width: 360px;
+  width: 100%;
 }
 
 .search-bar .search-icon {
@@ -1956,4 +1935,55 @@ select.form-control {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* ======================
+   LANDING SIDEBAR MOBILE DRAWER
+   ====================== */
+.landing-sidebar {
+  display: none;
+}
+
+.landing-sidebar-overlay {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .landing-sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 1999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .landing-sidebar-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .landing-sidebar {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: -280px;
+    top: 0;
+    width: 260px;
+    height: 100vh;
+    background: var(--white);
+    border-right: 1px solid var(--gray-200);
+    padding: 24px 16px;
+    z-index: 2000;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+  }
+
+  .landing-sidebar.open {
+    left: 0;
+    box-shadow: 8px 0 30px rgba(0, 0, 0, 0.15);
+  }
 }

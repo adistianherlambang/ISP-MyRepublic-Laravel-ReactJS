@@ -281,29 +281,26 @@ function LandingPage() {
     <div className="hero-gradient min-vh-100">
       {/* Clean White Navbar (Reference Image 2 style) */}
       <div className="container">
-        <header className="floating-navbar" style={{ flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-            <a href="#" className="nav-logo">
-              <Wifi size={20} color="#7E287B" />
-              MyRepublic <span style={{ color: '#7E287B' }}>Lampung</span>
-            </a>
-            <button
-              className="mobile-menu-btn"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle navigation"
-            >
-              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
-          </div>
-          <nav className={`nav-links${mobileMenuOpen ? ' open' : ''}`}>
-            <a href="#coverage-section" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Coverage</a>
-            <a href="#products-section" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Paket Internet</a>
-            <a href="#stats-section" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Statistik</a>
+        <header className="floating-navbar">
+          <a href="#" className="nav-logo">
+            <Wifi size={20} color="#7E287B" />
+            MyRepublic <span style={{ color: '#7E287B' }}>Lampung</span>
+          </a>
+          <button
+            className="mobile-menu-btn"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle navigation"
+          >
+            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+          <nav className="nav-links">
+            <a href="#coverage-section" className="nav-link">Coverage</a>
+            <a href="#products-section" className="nav-link">Paket Internet</a>
+            <a href="#stats-section" className="nav-link">Statistik</a>
             <a
               href="#admin"
               className="btn btn-primary btn-pill"
               style={{ padding: '8px 20px', fontSize: '13px' }}
-              onClick={() => setMobileMenuOpen(false)}
             >
               Admin Panel
             </a>
@@ -795,6 +792,68 @@ function LandingPage() {
           </div>
         </div>
       )}
+
+      {/* Mobile Sidebar Overlay (active when open) */}
+      <div 
+        className={`landing-sidebar-overlay${mobileMenuOpen ? ' active' : ''}`}
+        onClick={() => setMobileMenuOpen(false)}
+      />
+
+      {/* Mobile Sidebar Drawer (slides in like admin sidebar) */}
+      <aside className={`landing-sidebar${mobileMenuOpen ? ' open' : ''}`}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid var(--gray-200)' }}>
+          <div className="nav-logo" style={{ fontSize: '16px' }}>
+            <Wifi size={20} color="#7E287B" />
+            MyRepublic <span style={{ color: '#7E287B' }}>Lampung</span>
+          </div>
+          <button 
+            type="button"
+            onClick={() => setMobileMenuOpen(false)}
+            style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--gray-500)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px' }}
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <a 
+            href="#coverage-section" 
+            className="nav-link" 
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: 'var(--radius-sm)', textDecoration: 'none', fontWeight: 500 }}
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <MapPin size={16} color="#7E287B" />
+            Coverage
+          </a>
+          <a 
+            href="#products-section" 
+            className="nav-link" 
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: 'var(--radius-sm)', textDecoration: 'none', fontWeight: 500 }}
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <Compass size={16} color="#7E287B" />
+            Paket Internet
+          </a>
+          <a 
+            href="#stats-section" 
+            className="nav-link" 
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: 'var(--radius-sm)', textDecoration: 'none', fontWeight: 500 }}
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <Zap size={16} color="#7E287B" />
+            Statistik
+          </a>
+          <a 
+            href="#admin" 
+            className="btn btn-primary" 
+            style={{ background: '#7E287B', color: '#fff', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '12px', marginTop: '16px', borderRadius: 'var(--radius-md)', textDecoration: 'none', fontWeight: 600 }}
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <User size={16} />
+            Admin Panel
+          </a>
+        </nav>
+      </aside>
     </div>
   );
 }

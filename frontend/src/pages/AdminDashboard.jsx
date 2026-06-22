@@ -815,26 +815,25 @@ function AdminDashboard() {
                   <h2 style={{ fontSize: '22px', color: 'var(--dark)', marginBottom: '4px' }}>Coverage Area</h2>
                   <p style={{ fontSize: '14px', color: 'var(--gray-500)' }}>Tambah, ubah, dan hapus area jangkauan kabel fiber optic.</p>
                 </div>
-                <button onClick={openAddCoverage} className="btn btn-primary" style={{ background: '#7E287B' }}>
+                {/* Search bar */}
+                <div className="search-bar" style={{ marginBottom: '4px' }}>
+                  <Search className="search-icon" size={16} />
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Cari Kabupaten / Kecamatan..."
+                    style={{ paddingLeft: '38px' }}
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                  />
+                </div>
+                {/* <button onClick={openAddCoverage} className="btn btn-primary" style={{ background: '#7E287B' }}>
                   <Plus size={16} />
                   Tambah Wilayah
-                </button>
-              </div>
-
-              {/* Search bar */}
-              <div className="search-bar" style={{ marginBottom: '4px', maxWidth: '400px' }}>
-                <Search className="search-icon" size={16} />
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Cari Kabupaten / Kecamatan..."
-                  style={{ paddingLeft: '38px' }}
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                />
+                </button> */}
               </div>
 
               <div className="table-container">
@@ -1399,14 +1398,14 @@ function AdminDashboard() {
                   <span style={{ fontSize: '12px', color: 'var(--gray-500)', display: 'block', marginBottom: '6px' }}>Foto Rumah</span>
                   {selectedReg.foto_rumah ? (
                     <a href={`${API_URL}/${selectedReg.foto_rumah}`} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>
-                      <img 
-                        src={`${API_URL}/${selectedReg.foto_rumah}`} 
-                        alt="Foto Rumah" 
-                        style={{ 
-                          width: '100%', 
-                          height: '120px', 
-                          objectFit: 'cover', 
-                          borderRadius: 'var(--radius-sm)', 
+                      <img
+                        src={`${API_URL}/${selectedReg.foto_rumah}`}
+                        alt="Foto Rumah"
+                        style={{
+                          width: '100%',
+                          height: '120px',
+                          objectFit: 'cover',
+                          borderRadius: 'var(--radius-sm)',
                           border: '1px solid var(--gray-200)',
                           cursor: 'pointer',
                           transition: 'transform 0.2s',
@@ -1416,11 +1415,11 @@ function AdminDashboard() {
                       />
                     </a>
                   ) : (
-                    <div style={{ 
-                      width: '100%', 
-                      height: '120px', 
-                      background: 'var(--gray-50)', 
-                      borderRadius: 'var(--radius-sm)', 
+                    <div style={{
+                      width: '100%',
+                      height: '120px',
+                      background: 'var(--gray-50)',
+                      borderRadius: 'var(--radius-sm)',
                       border: '1px dashed var(--gray-300)',
                       display: 'flex',
                       alignItems: 'center',
@@ -1436,14 +1435,14 @@ function AdminDashboard() {
                   <span style={{ fontSize: '12px', color: 'var(--gray-500)', display: 'block', marginBottom: '6px' }}>Foto KTP</span>
                   {selectedReg.foto_ktp ? (
                     <a href={`${API_URL}/${selectedReg.foto_ktp}`} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>
-                      <img 
-                        src={`${API_URL}/${selectedReg.foto_ktp}`} 
-                        alt="Foto KTP" 
-                        style={{ 
-                          width: '100%', 
-                          height: '120px', 
-                          objectFit: 'cover', 
-                          borderRadius: 'var(--radius-sm)', 
+                      <img
+                        src={`${API_URL}/${selectedReg.foto_ktp}`}
+                        alt="Foto KTP"
+                        style={{
+                          width: '100%',
+                          height: '120px',
+                          objectFit: 'cover',
+                          borderRadius: 'var(--radius-sm)',
                           border: '1px solid var(--gray-200)',
                           cursor: 'pointer',
                           transition: 'transform 0.2s',
@@ -1453,11 +1452,11 @@ function AdminDashboard() {
                       />
                     </a>
                   ) : (
-                    <div style={{ 
-                      width: '100%', 
-                      height: '120px', 
-                      background: 'var(--gray-50)', 
-                      borderRadius: 'var(--radius-sm)', 
+                    <div style={{
+                      width: '100%',
+                      height: '120px',
+                      background: 'var(--gray-50)',
+                      borderRadius: 'var(--radius-sm)',
                       border: '1px dashed var(--gray-300)',
                       display: 'flex',
                       alignItems: 'center',
