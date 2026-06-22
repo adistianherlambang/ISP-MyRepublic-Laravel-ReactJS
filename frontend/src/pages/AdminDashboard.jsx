@@ -24,7 +24,13 @@ import {
   Settings,
   MoreHorizontal,
   Menu,
-  X
+  X,
+  Send,
+  ClipboardList,
+  FileText,
+  Phone,
+  Home,
+  Eye
 } from 'lucide-react';
 import { API_URL } from '../App';
 
@@ -45,7 +51,16 @@ function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Stats
-  const [stats, setStats] = useState({ total_products: 0, total_coverages: 0, available_coverages: 0 });
+  const [stats, setStats] = useState({ total_products: 0, total_coverages: 0, available_coverages: 0, total_registrations: 0, new_registrations: 0 });
+
+  // Registrations
+  const [registrations, setRegistrations] = useState([]);
+  const [regFilterStatus, setRegFilterStatus] = useState('');
+  const [showRegDetailModal, setShowRegDetailModal] = useState(false);
+  const [selectedReg, setSelectedReg] = useState(null);
+  const [regEditStatus, setRegEditStatus] = useState('');
+  const [regEditCatatan, setRegEditCatatan] = useState('');
+  const [regSaving, setRegSaving] = useState(false);
 
   // Data lists
   const [coverages, setCoverages] = useState([]);
@@ -75,6 +90,8 @@ function AdminDashboard() {
   // Search & Pagination states
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [regSearchQuery, setRegSearchQuery] = useState('');
+  const [regCurrentPage, setRegCurrentPage] = useState(1);
   const itemsPerPage = 15;
 
   useEffect(() => {
@@ -84,6 +101,12 @@ function AdminDashboard() {
       fetchProducts();
     }
   }, [token]);
+
+  useEffect(() => {
+    if (latestToken) {
+      fetchRegistrations();
+    }
+  }, [token, regFilterStatus]);
 
   const fetchStats = () => {
     fetch(`${API_URL}/api/stats`)
@@ -104,6 +127,62 @@ function AdminDashboard() {
       .then(res => res.json())
       .then(data => setProducts(data))
       .catch(err => console.error(err));
+  };
+
+  const fetchRegistrations = () => {
+    const statusParam = regFilterStatus ? `?status=${regFilterStatus}` : '';
+    fetch(`${API_URL}/api/registrations${statusParam}`, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('admin_token') || ''}` }
+    })
+      .then(res => res.json())
+      .then(data => setRegistrations(Array.isArray(data) ? data : []))
+      .catch(err => console.error(err));
+  };
+
+  const handleUpdateRegStatus = () => {
+    if (!selectedReg) return;
+    setRegSaving(true);
+
+    fetch(`${API_URL}/api/registrations/${selectedReg.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('admin_token') || ''}`
+      },
+      body: JSON.stringify({ status: regEditStatus, catatan: regEditCatatan }),
+    })
+      .then(async (res) => {
+        if (res.ok) {
+          fetchRegistrations();
+          fetchStats();
+          setShowRegDetailModal(false);
+        } else {
+          const data = await res.json();
+          alert(data.message || 'Gagal mengupdate');
+        }
+        setRegSaving(false);
+      })
+      .catch(() => { alert('Gagal menghubungi server'); setRegSaving(false); });
+  };
+
+  const handleDeleteReg = (id) => {
+    if (!window.confirm('Hapus data pendaftaran ini?')) return;
+    fetch(`${API_URL}/api/registrations/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('admin_token') || ''}` }
+    })
+      .then(async (res) => {
+        if (res.ok) { fetchRegistrations(); fetchStats(); }
+        else { const d = await res.json(); alert(d.message || 'Gagal menghapus'); }
+      })
+      .catch(() => alert('Gagal menghubungi server'));
+  };
+
+  const openRegDetail = (reg) => {
+    setSelectedReg(reg);
+    setRegEditStatus(reg.status);
+    setRegEditCatatan(reg.catatan || '');
+    setShowRegDetailModal(true);
   };
 
   const handleLogin = (e) => {
@@ -305,7 +384,8 @@ function AdminDashboard() {
   const tabLabels = {
     overview: 'Dashboard',
     coverage: 'Coverage Area',
-    products: 'Paket Produk'
+    products: 'Paket Produk',
+    registrations: 'Pendaftaran'
   };
 
   // LOGIN GATE SCREEN
@@ -430,6 +510,18 @@ function AdminDashboard() {
               <span className="item-badge">{stats.total_products || 0}</span>
             </button>
           </li>
+          <li>
+            <button 
+              onClick={() => { setActiveTab('registrations'); setSidebarOpen(false); }} 
+              className={`sidebar-item-btn ${activeTab === 'registrations' ? 'active' : ''}`}
+            >
+              <ClipboardList size={18} />
+              Pendaftaran
+              {stats.new_registrations > 0 && (
+                <span className="item-badge" style={{ background: 'var(--danger-light)', color: 'var(--danger)' }}>{stats.new_registrations}</span>
+              )}
+            </button>
+          </li>
         </ul>
 
         {/* Bottom section with user profile */}
@@ -545,6 +637,22 @@ function AdminDashboard() {
               </div>
             </div>
 
+            {/* 4th Stat Card: Registrations */}
+            <div className="stat-card">
+              <div className="stat-label">
+                <div className="stat-icon" style={{ background: 'var(--info-light)', color: 'var(--info)' }}>
+                  <ClipboardList size={16} />
+                </div>
+                Pendaftaran
+              </div>
+              <div className="stat-value">{stats.total_registrations}</div>
+              {stats.new_registrations > 0 && (
+                <div className="stat-change negative">
+                  <FileText size={12} /> {stats.new_registrations} baru
+                </div>
+              )}
+            </div>
+
             {/* Quick data preview - recent coverages */}
             <div className="table-container">
               <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--gray-200)' }}>
@@ -588,6 +696,61 @@ function AdminDashboard() {
                       </td>
                     </tr>
                   ))}
+                </tbody>
+              </table>
+            </div>
+            {/* Quick preview: Recent Registrations */}
+            <div className="table-container" style={{ marginTop: '20px' }}>
+              <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--gray-200)' }}>
+                <h4 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--dark)' }}>Pendaftaran Terbaru</h4>
+                <button 
+                  onClick={() => setActiveTab('registrations')} 
+                  className="btn btn-secondary" 
+                  style={{ fontSize: '12px', padding: '6px 14px' }}
+                >
+                  View All
+                </button>
+              </div>
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Nama</th>
+                    <th>Telepon</th>
+                    <th>Wilayah</th>
+                    <th>Status</th>
+                    <th>Tanggal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {registrations.slice(0, 5).map((reg) => (
+                    <tr key={reg.id}>
+                      <td style={{ fontWeight: 600 }}>{reg.nama}</td>
+                      <td>{reg.telepon}</td>
+                      <td>{reg.kecamatan}, {reg.kabupaten}</td>
+                      <td>
+                        <span className={`badge ${
+                          reg.status === 'Baru' ? 'badge-info' :
+                          reg.status === 'Diproses' ? 'badge-warning' :
+                          reg.status === 'Selesai' ? 'badge-success' : 'badge-danger'
+                        }`}>
+                          <span className={`status-dot ${
+                            reg.status === 'Baru' ? 'warning' :
+                            reg.status === 'Diproses' ? 'warning' :
+                            reg.status === 'Selesai' ? 'success' : 'danger'
+                          }`}></span>
+                          {reg.status}
+                        </span>
+                      </td>
+                      <td style={{ fontSize: '13px', color: 'var(--gray-500)' }}>
+                        {new Date(reg.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </td>
+                    </tr>
+                  ))}
+                  {registrations.length === 0 && (
+                    <tr>
+                      <td colSpan={5} style={{ textAlign: 'center', color: 'var(--gray-400)', padding: '24px' }}>Belum ada data pendaftaran</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -790,6 +953,185 @@ function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {/* REGISTRATION MANAGEMENT TAB */}
+        {activeTab === 'registrations' && (() => {
+          const filteredRegs = registrations.filter(reg => 
+            (reg.nama && reg.nama.toLowerCase().includes(regSearchQuery.toLowerCase())) ||
+            (reg.telepon && reg.telepon.includes(regSearchQuery)) ||
+            (reg.alamat && reg.alamat.toLowerCase().includes(regSearchQuery.toLowerCase())) ||
+            (reg.kecamatan && reg.kecamatan.toLowerCase().includes(regSearchQuery.toLowerCase())) ||
+            (reg.kabupaten && reg.kabupaten.toLowerCase().includes(regSearchQuery.toLowerCase()))
+          );
+          
+          const totalPages = Math.ceil(filteredRegs.length / itemsPerPage) || 1;
+          const page = Math.min(regCurrentPage, totalPages);
+          const startIndex = (page - 1) * itemsPerPage;
+          const paginatedRegs = filteredRegs.slice(startIndex, startIndex + itemsPerPage);
+
+          return (
+            <div className="animate-fade-in">
+              <div className="action-bar">
+                <div>
+                  <h2 style={{ fontSize: '22px', color: 'var(--dark)', marginBottom: '4px' }}>Pendaftaran Calon Pelanggan</h2>
+                  <p style={{ fontSize: '14px', color: 'var(--gray-500)' }}>Kelola data calon pelanggan baru dan teruskan ke tim sales.</p>
+                </div>
+              </div>
+
+              {/* Filters and Search */}
+              <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <div className="search-bar" style={{ flex: '1 1 300px', maxWidth: '400px', margin: 0 }}>
+                  <Search className="search-icon" size={16} />
+                  <input 
+                    type="text" 
+                    className="form-control" 
+                    placeholder="Cari nama, telepon, alamat..." 
+                    style={{ paddingLeft: '38px' }}
+                    value={regSearchQuery}
+                    onChange={(e) => {
+                      setRegSearchQuery(e.target.value);
+                      setRegCurrentPage(1);
+                    }}
+                  />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--gray-600)' }}>Status:</span>
+                  <select
+                    className="form-control"
+                    style={{ width: '150px', padding: '6px 12px', fontSize: '13px' }}
+                    value={regFilterStatus}
+                    onChange={(e) => {
+                      setRegFilterStatus(e.target.value);
+                      setRegCurrentPage(1);
+                    }}
+                  >
+                    <option value="">Semua</option>
+                    <option value="Baru">Baru</option>
+                    <option value="Diproses">Diproses</option>
+                    <option value="Selesai">Selesai</option>
+                    <option value="Ditolak">Ditolak</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="table-container">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>Nama</th>
+                      <th>Telepon</th>
+                      <th>Wilayah</th>
+                      <th>Paket Pilihan</th>
+                      <th>Status</th>
+                      <th>Tanggal</th>
+                      <th style={{ textAlign: 'right' }}>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedRegs.map((reg) => (
+                      <tr key={reg.id}>
+                        <td style={{ fontWeight: 600 }}>{reg.nama}</td>
+                        <td>
+                          <a href={`tel:${reg.telepon}`} style={{ color: 'inherit', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <Phone size={13} color="var(--primary)" /> {reg.telepon}
+                          </a>
+                        </td>
+                        <td>
+                          <div style={{ fontWeight: 500 }}>{reg.kecamatan}</div>
+                          <span style={{ fontSize: '12px', color: 'var(--gray-500)' }}>{reg.kabupaten}</span>
+                        </td>
+                        <td>
+                          {reg.product ? (
+                            <div>
+                              <div style={{ fontWeight: 600, color: '#7E287B' }}>{reg.product.nama_paket}</div>
+                              <span style={{ fontSize: '12px', color: 'var(--gray-500)' }}>{reg.product.kecepatan}</span>
+                            </div>
+                          ) : (
+                            <span style={{ color: 'var(--gray-400)', fontSize: '13px' }}>—</span>
+                          )}
+                        </td>
+                        <td>
+                          <span className={`badge ${
+                            reg.status === 'Baru' ? 'badge-info' :
+                            reg.status === 'Diproses' ? 'badge-warning' :
+                            reg.status === 'Selesai' ? 'badge-success' : 'badge-danger'
+                          }`}>
+                            <span className={`status-dot ${
+                              reg.status === 'Baru' ? 'info' :
+                              reg.status === 'Diproses' ? 'warning' :
+                              reg.status === 'Selesai' ? 'success' : 'danger'
+                            }`}></span>
+                            {reg.status}
+                          </span>
+                        </td>
+                        <td style={{ fontSize: '13px', color: 'var(--gray-500)' }}>
+                          {new Date(reg.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                            <button onClick={() => openRegDetail(reg)} className="btn btn-secondary" style={{ padding: '6px 10px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <Eye size={13} /> Detail
+                            </button>
+                            <button onClick={() => handleDeleteReg(reg.id)} className="btn btn-secondary" style={{ padding: '6px 10px', fontSize: '12px', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.2)' }}>
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {paginatedRegs.length === 0 && (
+                      <tr>
+                        <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-500)' }}>
+                          Tidak ada data pendaftaran yang cocok.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              <div className="pagination">
+                <span className="pagination-info">
+                  Menampilkan {paginatedRegs.length} dari {filteredRegs.length} pendaftaran
+                </span>
+                <div className="pagination-controls">
+                  <button 
+                    className="page-btn"
+                    onClick={() => setRegCurrentPage(1)}
+                    disabled={page === 1}
+                  >
+                    <ChevronsLeft size={14} />
+                  </button>
+                  <button 
+                    className="page-btn"
+                    onClick={() => setRegCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={page === 1}
+                  >
+                    <ChevronLeft size={14} />
+                  </button>
+                  <span className="page-info">
+                    {page} / {totalPages}
+                  </span>
+                  <button 
+                    className="page-btn"
+                    onClick={() => setRegCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={page === totalPages}
+                  >
+                    <ChevronRight size={14} />
+                  </button>
+                  <button 
+                    className="page-btn"
+                    onClick={() => setRegCurrentPage(totalPages)}
+                    disabled={page === totalPages}
+                  >
+                    <ChevronsRight size={14} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </main>
 
       {/* COVERAGE MODAL FORM */}
@@ -957,6 +1299,129 @@ function AdminDashboard() {
                 </button>
                 <button type="submit" className="btn btn-primary" style={{ background: '#7E287B' }}>
                   Simpan Paket
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* REGISTRATION DETAIL MODAL */}
+      {showRegDetailModal && selectedReg && (
+        <div className="modal-overlay">
+          <div className="modal-card" style={{ maxWidth: '600px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid var(--gray-200)', paddingBottom: '12px' }}>
+              <h4 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <ClipboardList size={20} color="#7E287B" />
+                Detail Pendaftaran Calon Pelanggan
+              </h4>
+              <button 
+                onClick={() => setShowRegDetailModal(false)}
+                style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--gray-500)' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+              <div>
+                <span style={{ fontSize: '12px', color: 'var(--gray-500)', display: 'block' }}>Nama Lengkap</span>
+                <strong style={{ fontSize: '15px', color: 'var(--dark)' }}>{selectedReg.nama}</strong>
+              </div>
+              <div>
+                <span style={{ fontSize: '12px', color: 'var(--gray-500)', display: 'block' }}>Nomor Telepon / WhatsApp</span>
+                <strong style={{ fontSize: '15px', color: 'var(--dark)' }}>{selectedReg.telepon}</strong>
+              </div>
+              <div style={{ gridColumn: 'span 2' }}>
+                <span style={{ fontSize: '12px', color: 'var(--gray-500)', display: 'block' }}>Alamat Lengkap</span>
+                <span style={{ fontSize: '14px', color: 'var(--dark)' }}>{selectedReg.alamat}</span>
+              </div>
+              <div>
+                <span style={{ fontSize: '12px', color: 'var(--gray-500)', display: 'block' }}>Kecamatan</span>
+                <span style={{ fontSize: '14px', color: 'var(--dark)', fontWeight: 500 }}>{selectedReg.kecamatan}</span>
+              </div>
+              <div>
+                <span style={{ fontSize: '12px', color: 'var(--gray-500)', display: 'block' }}>Kabupaten</span>
+                <span style={{ fontSize: '14px', color: 'var(--dark)', fontWeight: 500 }}>{selectedReg.kabupaten}</span>
+              </div>
+              <div style={{ gridColumn: 'span 2' }}>
+                <span style={{ fontSize: '12px', color: 'var(--gray-500)', display: 'block' }}>Paket Pilihan</span>
+                {selectedReg.product ? (
+                  <div style={{ background: 'var(--gray-50)', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--gray-200)', marginTop: '4px' }}>
+                    <strong style={{ color: '#7E287B' }}>{selectedReg.product.nama_paket}</strong> ({selectedReg.product.kecepatan})
+                    <div style={{ fontSize: '13px', color: 'var(--gray-600)', marginTop: '2px' }}>
+                      Harga: Rp {Number(selectedReg.product.harga).toLocaleString('id-ID')}/bulan
+                    </div>
+                  </div>
+                ) : (
+                  <span style={{ fontSize: '14px', color: 'var(--gray-500)' }}>Tidak ada paket yang dipilih secara spesifik</span>
+                )}
+              </div>
+            </div>
+
+            <hr style={{ border: 0, borderTop: '1px solid var(--gray-200)', margin: '20px 0' }} />
+
+            <h5 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px' }}>Tindakan Administrator</h5>
+
+            <form onSubmit={(e) => { e.preventDefault(); handleUpdateRegStatus(); }}>
+              <div className="form-group">
+                <label className="form-label">Status Tindak Lanjut</label>
+                <select 
+                  className="form-control"
+                  value={regEditStatus}
+                  onChange={(e) => setRegEditStatus(e.target.value)}
+                  required
+                >
+                  <option value="Baru">Baru (Belum diproses)</option>
+                  <option value="Diproses">Diproses (Survei lokasi/hubungi sales)</option>
+                  <option value="Selesai">Selesai (Sudah terpasang)</option>
+                  <option value="Ditolak">Ditolak (Batal/tidak tercover detail)</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Catatan Internal / Riwayat Survei</label>
+                <textarea 
+                  className="form-control"
+                  rows="3"
+                  placeholder="Masukkan catatan perkembangan pemasangan atau alasan penolakan..."
+                  value={regEditCatatan}
+                  onChange={(e) => setRegEditCatatan(e.target.value)}
+                />
+              </div>
+
+              {/* WhatsApp Link Shortcuts */}
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+                <a 
+                  href={`https://wa.me/${selectedReg.telepon.replace(/[^0-9]/g, '').replace(/^0/, '62')}?text=${encodeURIComponent(
+                    `Halo ${selectedReg.nama}, kami dari MyRepublic Lampung ingin mengonfirmasi pendaftaran pasang baru internet Anda di alamat: ${selectedReg.alamat}.`
+                  )}`}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="btn btn-secondary" 
+                  style={{ flex: 1, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '12px', borderColor: '#25D366', color: '#25D366' }}
+                >
+                  <Phone size={14} /> Hubungi Pelanggan (WA)
+                </a>
+                <a 
+                  href={`https://wa.me/?text=${encodeURIComponent(
+                    `*INFO CALON PELANGGAN BARU - MYREPUBLIC LAMPUNG*\n\nNama: ${selectedReg.nama}\nTelepon: ${selectedReg.telepon}\nAlamat: ${selectedReg.alamat}\nKecamatan: ${selectedReg.kecamatan}\nKabupaten: ${selectedReg.kabupaten}\nPaket Pilihan: ${selectedReg.product ? `${selectedReg.product.nama_paket} (${selectedReg.product.kecepatan})` : 'Pilih nanti'}\n\nMohon ditindaklanjuti untuk survei lokasi dan pemasangan.`
+                  )}`}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="btn btn-secondary" 
+                  style={{ flex: 1, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '12px', borderColor: '#7E287B', color: '#7E287B' }}
+                >
+                  <Send size={14} /> Teruskan ke Sales (WA)
+                </a>
+              </div>
+
+              <div className="modal-actions" style={{ borderTop: '1px solid var(--gray-200)', paddingTop: '16px', marginTop: '0' }}>
+                <button type="button" onClick={() => setShowRegDetailModal(false)} className="btn btn-secondary">
+                  Batal
+                </button>
+                <button type="submit" className="btn btn-primary" style={{ background: '#7E287B' }} disabled={regSaving}>
+                  {regSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
                 </button>
               </div>
             </form>

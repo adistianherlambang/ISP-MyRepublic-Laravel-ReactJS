@@ -18,6 +18,9 @@ Route::get('/api/coverage', 'CoverageController@index');
 Route::post('/api/coverage/check', 'CoverageController@check');
 Route::get('/api/stats', 'AuthController@stats');
 
+// Public Registration (calon pelanggan)
+Route::post('/api/registrations', 'RegistrationController@store');
+
 // Protected Admin API Routes
 Route::group(['middleware' => ['admin.auth']], function () {
     Route::post('/api/logout', 'AuthController@logout');
@@ -32,4 +35,10 @@ Route::group(['middleware' => ['admin.auth']], function () {
     Route::post('/api/coverage', 'CoverageController@store');
     Route::put('/api/coverage/{id}', 'CoverageController@update');
     Route::delete('/api/coverage/{id}', 'CoverageController@destroy');
+
+    // Registration Management (admin)
+    Route::get('/api/registrations', 'RegistrationController@index');
+    Route::get('/api/registrations/{id}', 'RegistrationController@show');
+    Route::put('/api/registrations/{id}', 'RegistrationController@update');
+    Route::delete('/api/registrations/{id}', 'RegistrationController@destroy');
 });

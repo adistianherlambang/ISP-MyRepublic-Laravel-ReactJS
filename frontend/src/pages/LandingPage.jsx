@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, GeoJSON, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
-import { MapPin, Search, Compass, Shield, Wifi, Zap, CheckCircle, XCircle, ArrowRight, Laptop, Star, Menu, X } from 'lucide-react';
+import { MapPin, Search, Compass, Shield, Wifi, Zap, CheckCircle, XCircle, ArrowRight, Laptop, Star, Menu, X, Send, UserPlus, Phone, Home } from 'lucide-react';
 import { API_URL } from '../App';
 import L from 'leaflet';
 
@@ -47,6 +47,13 @@ function LandingPage() {
 
   // Mobile menu state
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Registration form states
+  const [showRegForm, setShowRegForm] = useState(false);
+  const [regForm, setRegForm] = useState({ nama: '', telepon: '', alamat: '', paket_id: '' });
+  const [regLoading, setRegLoading] = useState(false);
+  const [regSuccess, setRegSuccess] = useState(null);
+  const [regError, setRegError] = useState(null);
 
   useEffect(() => {
     // 1. Fetch products
@@ -167,6 +174,45 @@ function LandingPage() {
     e.preventDefault();
     if (!manualKab || !manualKec) return;
     checkCoverageAPI(manualKab, manualKec);
+  };
+
+  // Registration form submit handler
+  const handleRegistration = (e) => {
+    e.preventDefault();
+    setRegLoading(true);
+    setRegError(null);
+
+    const payload = {
+      nama: regForm.nama,
+      telepon: regForm.telepon,
+      alamat: regForm.alamat,
+      kabupaten: geoResult?.kabupaten || manualKab,
+      kecamatan: geoResult?.kecamatan || manualKec,
+    };
+    if (regForm.paket_id) {
+      payload.paket_id = parseInt(regForm.paket_id);
+    }
+
+    fetch(`${API_URL}/api/registrations`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        if (res.ok) {
+          setRegSuccess(data.message);
+          setRegForm({ nama: '', telepon: '', alamat: '', paket_id: '' });
+          setShowRegForm(false);
+        } else {
+          setRegError(data.message || 'Terjadi kesalahan saat mengirim data.');
+        }
+        setRegLoading(false);
+      })
+      .catch(() => {
+        setRegError('Gagal menghubungi server. Coba lagi nanti.');
+        setRegLoading(false);
+      });
   };
 
   // Stats chart data
@@ -353,6 +399,16 @@ function LandingPage() {
                         Kecamatan <strong>{geoResult.kecamatan}</strong>, {geoResult.kabupaten} telah tercover jaringan fiber optic kami.
                       </p>
                     </div>
+                    {!showRegForm && !regSuccess && (
+                      <button
+                        className="btn btn-primary"
+                        style={{ background: '#7E287B', marginTop: '8px' }}
+                        onClick={() => { setShowRegForm(true); setRegSuccess(null); }}
+                      >
+                        <UserPlus size={16} />
+                        Daftar Sekarang
+                      </button>
+                    )}
                   </>
                 ) : (
                   <>
@@ -365,6 +421,117 @@ function LandingPage() {
                     </div>
                   </>
                 )}
+              </div>
+            )}
+
+            {/* Registration Success Feedback */}
+            {regSuccess && (
+              <div className="result-card success animate-fade-in" style={{ marginTop: '12px' }}>
+                <CheckCircle size={32} color="#22c55e" />
+                <div>
+                  <h4 style={{ color: '#22c55e' }}>Pendaftaran Berhasil!</h4>
+                  <p>{regSuccess}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Registration Form (appears after clicking "Daftar Sekarang") */}
+            {showRegForm && geoResult?.status === 'Tersedia' && (
+              <div className="glass-card animate-fade-in" style={{ marginTop: '16px', padding: '24px' }}>
+                <h4 style={{ fontSize: '16px', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <UserPlus size={18} color="#7E287B" />
+                  Formulir Pendaftaran
+                </h4>
+                <p style={{ fontSize: '13px', color: 'var(--gray-500)', marginBottom: '20px' }}>
+                  Wilayah: <strong>{geoResult.kecamatan}</strong>, {geoResult.kabupaten}
+                </p>
+
+                <form onSubmit={handleRegistration}>
+                  <div className="form-group">
+                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <UserPlus size={13} /> Nama Lengkap
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Masukkan nama lengkap Anda"
+                      value={regForm.nama}
+                      onChange={(e) => setRegForm({ ...regForm, nama: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Phone size={13} /> Nomor Telepon / WhatsApp
+                    </label>
+                    <input
+                      type="tel"
+                      className="form-control"
+                      placeholder="Contoh: 08123456789"
+                      value={regForm.telepon}
+                      onChange={(e) => setRegForm({ ...regForm, telepon: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Home size={13} /> Alamat Lengkap
+                    </label>
+                    <textarea
+                      className="form-control"
+                      placeholder="Jalan, RT/RW, Kelurahan/Desa"
+                      rows={3}
+                      style={{ resize: 'vertical' }}
+                      value={regForm.alamat}
+                      onChange={(e) => setRegForm({ ...regForm, alamat: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Pilih Paket (opsional)</label>
+                    <select
+                      className="form-control"
+                      value={regForm.paket_id}
+                      onChange={(e) => setRegForm({ ...regForm, paket_id: e.target.value })}
+                    >
+                      <option value="">— Pilih nanti —</option>
+                      {products.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.nama_paket} — {p.kecepatan} — Rp {Number(p.harga).toLocaleString('id-ID')}/bln
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {regError && (
+                    <div className="error-message" style={{ marginBottom: '12px' }}>
+                      <XCircle size={16} style={{ flexShrink: 0 }} />
+                      <span>{regError}</span>
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      style={{ background: '#7E287B', flex: 1 }}
+                      disabled={regLoading}
+                    >
+                      <Send size={14} />
+                      {regLoading ? 'Mengirim...' : 'Kirim Pendaftaran'}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => { setShowRegForm(false); setRegError(null); }}
+                    >
+                      Batal
+                    </button>
+                  </div>
+                </form>
               </div>
             )}
           </div>

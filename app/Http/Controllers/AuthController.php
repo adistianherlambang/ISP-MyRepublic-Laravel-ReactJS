@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Admin;
 use App\Product;
 use App\Coverage;
+use App\Registration;
 
 class AuthController extends Controller
 {
@@ -80,11 +81,15 @@ class AuthController extends Controller
         $totalProducts = Product::count();
         $totalCoverages = Coverage::count();
         $availableCoverages = Coverage::where('status', 'Tersedia')->count();
+        $totalRegistrations = Registration::count();
+        $newRegistrations = Registration::where('status', 'Baru')->count();
 
         return response()->json([
             'total_products' => $totalProducts,
             'total_coverages' => $totalCoverages,
             'available_coverages' => $availableCoverages,
+            'total_registrations' => $totalRegistrations,
+            'new_registrations' => $newRegistrations,
         ]);
     }
 }
