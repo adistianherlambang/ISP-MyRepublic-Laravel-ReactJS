@@ -661,7 +661,7 @@ function LandingPage() {
                 <UserPlus size={20} color="#7E287B" />
                 Formulir Pendaftaran
               </h4>
-              <button 
+              <button
                 type="button"
                 onClick={() => { setShowRegForm(false); setRegError(null); }}
                 style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--gray-500)' }}
@@ -718,13 +718,14 @@ function LandingPage() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Pilih Paket (opsional)</label>
+                <label className="form-label">Pilih Paket</label>
                 <select
+                  required
                   className="form-control"
                   value={regForm.paket_id}
                   onChange={(e) => setRegForm({ ...regForm, paket_id: e.target.value })}
                 >
-                  <option value="">— Pilih nanti —</option>
+                  <option value="">Pilih Paket</option>
                   {products.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.nama_paket} — {p.kecepatan} — Rp {Number(p.harga).toLocaleString('id-ID')}/bln
@@ -735,9 +736,10 @@ function LandingPage() {
 
               <div className="form-group">
                 <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Camera size={13} /> Foto Rumah (opsional)
+                  <Camera size={13} /> Foto Rumah
                 </label>
                 <input
+                  required
                   type="file"
                   className="form-control"
                   accept="image/*"
@@ -750,9 +752,10 @@ function LandingPage() {
 
               <div className="form-group">
                 <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Camera size={13} /> Foto KTP (opsional)
+                  <Camera size={13} /> Foto KTP
                 </label>
                 <input
+                  required
                   type="file"
                   className="form-control"
                   accept="image/*"
