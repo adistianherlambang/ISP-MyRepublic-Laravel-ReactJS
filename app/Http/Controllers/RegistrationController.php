@@ -44,6 +44,7 @@ class RegistrationController extends Controller
             'paket_id'   => 'integer|exists:products,id',
             'foto_rumah' => 'image|max:5120',
             'foto_ktp'   => 'image|max:5120',
+            'foto_meteran' => 'image|max:5120',
         ]);
 
         $fotoRumahPath = null;
@@ -62,6 +63,14 @@ class RegistrationController extends Controller
             $fotoKtpPath = 'uploads/registrations/' . $filename;
         }
 
+        $fotoMeteranPath = null;
+        if ($request->hasFile('foto_meteran')) {
+            $file = $request->file('foto_meteran');
+            $filename = time() . '_meteran_' . str_replace(' ', '_', $file->getClientOriginalName());
+            $file->move(public_path('uploads/registrations'), $filename);
+            $fotoMeteranPath = 'uploads/registrations/' . $filename;
+        }
+
         $registration = Registration::create([
             'nama'       => $request->input('nama'),
             'telepon'    => $request->input('telepon'),
@@ -71,6 +80,7 @@ class RegistrationController extends Controller
             'paket_id'   => $request->input('paket_id') ?: null,
             'foto_rumah' => $fotoRumahPath,
             'foto_ktp'   => $fotoKtpPath,
+            'foto_meteran' => $fotoMeteranPath,
             'status'     => 'Baru',
         ]);
 
