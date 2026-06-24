@@ -16,6 +16,7 @@ class AddPhotosToRegistrationsTable extends Migration
         Schema::table('registrations', function (Blueprint $table) {
             $table->string('foto_rumah')->nullable()->after('paket_id');
             $table->string('foto_ktp')->nullable()->after('foto_rumah');
+            $table->string('foto_meteran')->nullable()->after('foto_ktp');
         });
     }
 
@@ -27,7 +28,7 @@ class AddPhotosToRegistrationsTable extends Migration
     public function down()
     {
         Schema::table('registrations', function (Blueprint $table) {
-            $table->dropColumn(['foto_rumah', 'foto_ktp']);
+            $table->dropColumn(['foto_rumah', 'foto_ktp', 'foto_meteran']);
         });
     }
 }

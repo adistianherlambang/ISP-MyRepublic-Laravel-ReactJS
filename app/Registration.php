@@ -19,7 +19,7 @@ class Registration extends Model
      * @var array
      */
     protected $fillable = [
-        'nama', 'telepon', 'alamat', 'kabupaten', 'kecamatan', 'paket_id', 'status', 'catatan', 'foto_rumah', 'foto_ktp',
+        'nama', 'telepon', 'email', 'alamat', 'kabupaten', 'kecamatan', 'paket_id', 'status', 'catatan', 'foto_rumah', 'foto_ktp',
     ];
 
     /**

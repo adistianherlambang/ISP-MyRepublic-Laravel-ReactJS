@@ -205,6 +205,9 @@ function LandingPage() {
     if (fotoRumah) {
       formData.append('foto_rumah', fotoRumah);
     }
+    if (fotoMeteran) {
+      formData.append('foto_meteran', fotoMeteran)
+    }
     if (fotoKtp) {
       formData.append('foto_ktp', fotoKtp);
     }
