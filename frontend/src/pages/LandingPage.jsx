@@ -50,9 +50,10 @@ function LandingPage() {
 
   // Registration form states
   const [showRegForm, setShowRegForm] = useState(false);
-  const [regForm, setRegForm] = useState({ nama: '', telepon: '', alamat: '', paket_id: '' });
+  const [regForm, setRegForm] = useState({ nama: '', telepon: '', alamat: '', paket_id: '', email: '' });
   const [fotoRumah, setFotoRumah] = useState(null);
   const [fotoKtp, setFotoKtp] = useState(null);
+  const [fotoMeteran, setFotoMeteran] = useState(null)
   const [regLoading, setRegLoading] = useState(false);
   const [regSuccess, setRegSuccess] = useState(null);
   const [regError, setRegError] = useState(null);
@@ -193,6 +194,7 @@ function LandingPage() {
     const formData = new FormData();
     formData.append('nama', regForm.nama);
     formData.append('telepon', regForm.telepon);
+    formData.append('email', regForm.email)
     formData.append('alamat', regForm.alamat);
     formData.append('kabupaten', geoResult?.kabupaten || manualKab);
     formData.append('kecamatan', geoResult?.kecamatan || manualKec);
@@ -218,6 +220,7 @@ function LandingPage() {
           setRegForm({ nama: '', telepon: '', alamat: '', paket_id: '' });
           setFotoRumah(null);
           setFotoKtp(null);
+          setFotoMeteran(null);
           setShowRegForm(false);
         } else {
           let errorMsg = data.message || 'Terjadi kesalahan saat mengirim data.';
@@ -688,6 +691,20 @@ function LandingPage() {
 
               <div className="form-group">
                 <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Phone size={13} /> Alamat Email
+                </label>
+                <input
+                  type="tel"
+                  className="form-control"
+                  placeholder="Contoh: 08123456789"
+                  value={regForm.telepon}
+                  onChange={(e) => setRegForm({ ...regForm, email: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Home size={13} /> Alamat Lengkap
                 </label>
                 <textarea
@@ -744,6 +761,22 @@ function LandingPage() {
                   className="form-control"
                   accept="image/*"
                   onChange={(e) => setFotoKtp(e.target.files[0] || null)}
+                />
+                <small style={{ fontSize: '11px', color: 'var(--gray-500)', display: 'block', marginTop: '4px' }}>
+                  Format: JPG, JPEG, PNG (Maks 5MB)
+                </small>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Camera size={13} /> Foto Meteran
+                </label>
+                <input
+                  required
+                  type="file"
+                  className="form-control"
+                  accept="image/*"
+                  onChange={(e) => setFotoMeteran(e.target.files[0] || null)}
                 />
                 <small style={{ fontSize: '11px', color: 'var(--gray-500)', display: 'block', marginTop: '4px' }}>
                   Format: JPG, JPEG, PNG (Maks 5MB)
