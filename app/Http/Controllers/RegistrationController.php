@@ -38,6 +38,7 @@ class RegistrationController extends Controller
         $this->validate($request, [
             'nama'       => 'required|string|max:100',
             'telepon'    => 'required|string|max:20',
+            'email'      => 'required|email|max:100',
             'alamat'     => 'required|string',
             'kabupaten'  => 'required|string|max:100',
             'kecamatan'  => 'required|string|max:100',
@@ -74,6 +75,7 @@ class RegistrationController extends Controller
         $registration = Registration::create([
             'nama'       => $request->input('nama'),
             'telepon'    => $request->input('telepon'),
+            'email'      => $request->input('email'),
             'alamat'     => $request->input('alamat'),
             'kabupaten'  => $request->input('kabupaten'),
             'kecamatan'  => $request->input('kecamatan'),

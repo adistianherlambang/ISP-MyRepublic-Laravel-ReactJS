@@ -30,7 +30,8 @@ import {
   FileText,
   Phone,
   Home,
-  Eye
+  Eye,
+  Mail
 } from 'lucide-react';
 import { API_URL } from '../App';
 
@@ -976,6 +977,7 @@ function AdminDashboard() {
           const filteredRegs = registrations.filter(reg =>
             (reg.nama && reg.nama.toLowerCase().includes(regSearchQuery.toLowerCase())) ||
             (reg.telepon && reg.telepon.includes(regSearchQuery)) ||
+            (reg.email && reg.email.toLowerCase().includes(regSearchQuery.toLowerCase())) ||
             (reg.alamat && reg.alamat.toLowerCase().includes(regSearchQuery.toLowerCase())) ||
             (reg.kecamatan && reg.kecamatan.toLowerCase().includes(regSearchQuery.toLowerCase())) ||
             (reg.kabupaten && reg.kabupaten.toLowerCase().includes(regSearchQuery.toLowerCase()))
@@ -1037,6 +1039,7 @@ function AdminDashboard() {
                     <tr>
                       <th>Nama</th>
                       <th>Telepon</th>
+                      <th>Email</th>
                       <th>Wilayah</th>
                       <th>Paket Pilihan</th>
                       <th>Status</th>
@@ -1051,6 +1054,11 @@ function AdminDashboard() {
                         <td>
                           <a href={`tel:${reg.telepon}`} style={{ color: 'inherit', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                             <Phone size={13} color="var(--primary)" /> {reg.telepon}
+                          </a>
+                        </td>
+                        <td>
+                          <a href={`mailto:${reg.email}`} style={{ color: 'inherit', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <Mail size={13} color="var(--primary)" /> {reg.email}
                           </a>
                         </td>
                         <td>
@@ -1343,6 +1351,10 @@ function AdminDashboard() {
                 <span style={{ fontSize: '12px', color: 'var(--gray-500)', display: 'block' }}>Nomor Telepon / WhatsApp</span>
                 <strong style={{ fontSize: '15px', color: 'var(--dark)' }}>{selectedReg.telepon}</strong>
               </div>
+              <div>
+                <span style={{ fontSize: '12px', color: 'var(--gray-500)', display: 'block' }}>Email</span>
+                <strong style={{ fontSize: '15px', color: 'var(--dark)' }}>{selectedReg.email}</strong>
+              </div>
               <div style={{ gridColumn: 'span 2' }}>
                 <span style={{ fontSize: '12px', color: 'var(--gray-500)', display: 'block' }}>Alamat Lengkap</span>
                 <span style={{ fontSize: '14px', color: 'var(--dark)' }}>{selectedReg.alamat}</span>
@@ -1369,7 +1381,7 @@ function AdminDashboard() {
                 )}
               </div>
 
-              <div style={{ gridColumn: 'span 2', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '8px' }}>
+              <div style={{ gridColumn: 'span 2', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '8px' }}>
                 <div>
                   <span style={{ fontSize: '12px', color: 'var(--gray-500)', display: 'block', marginBottom: '6px' }}>Foto Rumah</span>
                   {selectedReg.foto_rumah ? (
@@ -1414,6 +1426,43 @@ function AdminDashboard() {
                       <img
                         src={`${API_URL}/${selectedReg.foto_ktp}`}
                         alt="Foto KTP"
+                        style={{
+                          width: '100%',
+                          height: '120px',
+                          objectFit: 'cover',
+                          borderRadius: 'var(--radius-sm)',
+                          border: '1px solid var(--gray-200)',
+                          cursor: 'pointer',
+                          transition: 'transform 0.2s',
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                      />
+                    </a>
+                  ) : (
+                    <div style={{
+                      width: '100%',
+                      height: '120px',
+                      background: 'var(--gray-50)',
+                      borderRadius: 'var(--radius-sm)',
+                      border: '1px dashed var(--gray-300)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'var(--gray-400)',
+                      fontSize: '13px'
+                    }}>
+                      Tidak diunggah
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <span style={{ fontSize: '12px', color: 'var(--gray-500)', display: 'block', marginBottom: '6px' }}>Foto Meteran</span>
+                  {selectedReg.foto_meteran ? (
+                    <a href={`${API_URL}/${selectedReg.foto_meteran}`} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>
+                      <img
+                        src={`${API_URL}/${selectedReg.foto_meteran}`}
+                        alt="Foto Meteran"
                         style={{
                           width: '100%',
                           height: '120px',

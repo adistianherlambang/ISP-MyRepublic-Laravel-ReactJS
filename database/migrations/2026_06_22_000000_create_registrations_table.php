@@ -17,6 +17,7 @@ class CreateRegistrationsTable extends Migration
             $table->increments('id');
             $table->string('nama', 100);
             $table->string('telepon', 20);
+            $table->string('email', 100);
             $table->text('alamat');
             $table->string('kabupaten', 100);
             $table->string('kecamatan', 100);

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, GeoJSON, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
-import { MapPin, Search, Compass, Shield, Wifi, Zap, CheckCircle, XCircle, ArrowRight, Laptop, Star, Menu, X, Send, UserPlus, Phone, Home, Camera, User } from 'lucide-react';
+import { MapPin, Search, Compass, Shield, Wifi, Zap, Mail, CheckCircle, XCircle, ArrowRight, Laptop, Star, Menu, X, Send, UserPlus, Phone, Home, Camera, User } from 'lucide-react';
 import { API_URL } from '../App';
 import L from 'leaflet';
 
@@ -220,7 +220,7 @@ function LandingPage() {
         const data = await res.json();
         if (res.ok) {
           setRegSuccess(data.message);
-          setRegForm({ nama: '', telepon: '', alamat: '', paket_id: '' });
+          setRegForm({ nama: '', telepon: '', alamat: '', paket_id: '', email: '' });
           setFotoRumah(null);
           setFotoKtp(null);
           setFotoMeteran(null);
@@ -694,13 +694,13 @@ function LandingPage() {
 
               <div className="form-group">
                 <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Phone size={13} /> Alamat Email
+                  <Mail size={13} /> Alamat Email
                 </label>
                 <input
-                  type="tel"
+                  type="email"
                   className="form-control"
-                  placeholder="Contoh: 08123456789"
-                  value={regForm.telepon}
+                  placeholder="Contoh: conton@gmail.com"
+                  value={regForm.email}
                   onChange={(e) => setRegForm({ ...regForm, email: e.target.value })}
                   required
                 />
