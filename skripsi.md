@@ -7,28 +7,29 @@ Desain sistem digunakan untuk menggambarkan bagaimana sistem berjalan, berintera
 Use Case Diagram menggambarkan interaksi antara pengguna (*actor*) dengan sistem yang diusulkan. Sistem ini memiliki 2 (dua) *actor*, yaitu **Calon Pelanggan** (pengguna umum) dan **Administrator** (pengelola sistem).
 
 ```mermaid
-usecaseDiagram
-  actor CalonPelanggan as "Calon Pelanggan"
-  actor Admin as "Administrator"
+flowchart LR
+  %% Actors
+  Pelanggan((Calon Pelanggan))
+  Admin((Administrator))
 
-  rect "Sistem Pendaftaran & Cek Coverage ISP (Laravel & React)"
-    usecase UC1 as "Mengakses Landing Page"
-    usecase UC2 as "Melakukan Cek Jangkauan (Coverage Area)"
-    usecase UC3 as "Melihat Daftar Paket Layanan Internet"
-    usecase UC4 as "Melakukan Pendaftaran Pelanggan Baru (Upload Foto)"
-    
-    usecase UC5 as "Otorisasi Login Admin"
-    usecase UC6 as "Melihat Ringkasan Statistik (Dashboard Overview)"
-    usecase UC7 as "Mengelola Data Wilayah Coverage"
-    usecase UC8 as "Mengelola Data Paket Layanan Internet"
-    usecase UC9 as "Mengelola Data Pendaftaran Pelanggan"
-    usecase UC10 as "Melakukan Logout"
+  subgraph Sistem ["Sistem Pendaftaran & Cek Coverage ISP (Laravel & React)"]
+    UC1([Mengakses Landing Page])
+    UC2([Melakukan Cek Jangkauan])
+    UC3([Melihat Daftar Paket Layanan Internet])
+    UC4([Melakukan Pendaftaran Pelanggan Baru])
+    UC5([Otorisasi Login Admin])
+    UC6([Melihat Dashboard Overview])
+    UC7([Mengelola Data Wilayah Coverage])
+    UC8([Mengelola Data Paket Layanan])
+    UC9([Mengelola Data Pendaftaran])
+    UC10([Melakukan Logout])
   end
 
-  CalonPelanggan --> UC1
-  CalonPelanggan --> UC2
-  CalonPelanggan --> UC3
-  CalonPelanggan --> UC4
+  %% Links
+  Pelanggan --> UC1
+  Pelanggan --> UC2
+  Pelanggan --> UC3
+  Pelanggan --> UC4
 
   Admin --> UC5
   Admin --> UC6
@@ -47,65 +48,57 @@ Activity Diagram menggambarkan alur aktivitas sistem terstruktur untuk masing-ma
 Menggambarkan alur aktivitas ketika calon pelanggan melakukan cek lokasi jangkauan dan mendaftar paket layanan.
 
 ```mermaid
-stateDiagram-v2
-  [*] --> MengaksesLandingPage
-  MengaksesLandingPage --> CekJangkauan : Input Kabupaten & Kecamatan (atau deteksi lokasi GPS)
-  state CekJangkauan {
-    [*] --> KirimLokasi
-    KirimLokasi --> CekDatabase : Sistem memverifikasi area coverage
-  }
-  CekDatabase --> AreaTidakTersedia : Status "Belum Tersedia"
-  CekDatabase --> AreaTersedia : Status "Tersedia"
+flowchart TD
+  Start([Mulai]) --> Akses[Mengakses Landing Page]
+  Akses --> Input[Input Kabupaten & Kecamatan / Deteksi GPS]
+  Input --> Cek[Klik Tombol Cek Jangkauan]
+  Cek --> Verifikasi{Sistem Memeriksa Database}
   
-  AreaTidakTersedia --> SelesaiTidakBisaDaftar : Tampilkan pesan penolakan jangkauan
-  AreaTersedia --> TampilkanFormPendaftaran : Tampilkan daftar paket & tombol pendaftaran
+  Verifikasi -- Belum Tersedia --> TidakTersedia[Tampilkan Pesan Area Belum Terjangkau]
+  TidakTersedia --> SelesaiTidakDaftar([Selesai - Tidak Bisa Daftar])
   
-  TampilkanFormPendaftaran --> MengisiDataForm : Input nama, telepon, email, alamat, & pilih paket
-  MengisiDataForm --> UploadLampiran : Unggah Foto Rumah, Foto KTP, & Foto Meteran
-  UploadLampiran --> KirimPendaftaran : Klik "Kirim Pendaftaran"
-  KirimPendaftaran --> ValidasiForm : Validasi kelengkapan data & file (Server API)
+  Verifikasi -- Tersedia --> Tersedia[Tampilkan Daftar Paket & Form Pendaftaran]
+  Tersedia --> IsiForm[Isi Data: Nama, Telepon, Email, Alamat]
+  IsiForm --> Upload[Unggah Berkas: Foto Rumah, KTP, & Meteran Listrik]
+  Upload --> Kirim[Klik Tombol Kirim Pendaftaran]
+  Kirim --> Validasi{Validasi Form Server API}
   
-  state ValidasiForm <<choice>>
-  ValidasiForm --> TampilkanFormPendaftaran : Data tidak valid (Kembali isi form)
-  ValidasiForm --> SimpanDatabase : Data valid (Sukses)
-  
-  SimpanDatabase --> TampilkanNotifikasiSukses : File tersimpan di server & DB tercatat
-  TampilkanNotifikasiSukses --> [*]
+  Validasi -- Tidak Valid --> Tersedia
+  Validasi -- Valid --> Simpan[Sistem Menyimpan Data & Foto Ke Server]
+  Simpan --> Sukses[Tampilkan Notifikasi Sukses Pendaftaran]
+  Sukses --> End([Selesai - Terdaftar])
 ```
 
 #### 2) Activity Diagram Administrator
 Menggambarkan alur kerja administrator dalam memantau statistik, mengelola data master, serta memproses pendaftaran pelanggan baru.
 
 ```mermaid
-stateDiagram-v2
-  [*] --> MembukaLoginAdmin : URL Hash #admin
-  MembukaLoginAdmin --> InputKredensial : Isi Username & Password
-  InputKredensial --> OtorisasiLogin : Klik "Sign In"
+flowchart TD
+  Start([Mulai]) --> BukaLogin[Membuka Halaman Login Admin Hash #admin]
+  BukaLogin --> InputKredensial[Input Username & Password]
+  InputKredensial --> KlikLogin[Klik Tombol Sign In]
+  KlikLogin --> CekKredensial{Otorisasi Kredensial md5}
   
-  state OtorisasiLogin <<choice>>
-  OtorisasiLogin --> MembukaLoginAdmin : Kredensial Salah (Tampilkan Error)
-  OtorisasiLogin --> MasukDashboard : Kredensial Benar (Simpan Token & API Auth)
+  CekKredensial -- Salah --> Salah[Tampilkan Pesan Error]
+  Salah --> BukaLogin
   
-  MasukDashboard --> TampilkanOverview : Statistik produk, coverage, & registrasi
+  CekKredensial -- Benar --> Dashboard[Masuk Dashboard & Simpan Token]
+  Dashboard --> Overview[Tampilkan Panel Overview Statistik]
   
-  state MenuAdmin <<choice>>
-  TampilkanOverview --> MenuAdmin : Pilih Navigasi Tab Menu
+  Overview --> Menu{Pilih Menu Tab}
   
-  MenuAdmin --> KelolaCoverage : Tab Coverage Area
-  KelolaCoverage --> AksiCoverage : Tambah / Edit / Hapus Area
-  AksiCoverage --> KelolaCoverage : Sinkronisasi koordinat & GeoJSON boundaries via OSM
+  Menu -- Kelola Coverage --> CRUDCoverage[Aksi Coverage: Tambah/Edit/Hapus Wilayah]
+  CRUDCoverage --> SyncOSM[Sinkronisasi Koordinat & GeoJSON via OSM]
+  SyncOSM --> Overview
   
-  MenuAdmin --> KelolaProduk : Tab Paket Internet
-  KelolaProduk --> AksiProduk : Tambah / Edit / Hapus Paket
-  AksiProduk --> KelolaProduk : Simpan perubahan
+  Menu -- Kelola Produk --> CRUDProduk[Aksi Produk: Tambah/Edit/Hapus Paket]
+  CRUDProduk --> Overview
   
-  MenuAdmin --> KelolaPendaftaran : Tab Registrasi Pelanggan
-  KelolaPendaftaran --> AksiPendaftaran : Lihat Detail / Unduh Foto / Update Status & Catatan / Hapus
-  AksiPendaftaran --> KelolaPendaftaran : Simpan status (Baru, Diproses, Selesai, Ditolak)
+  Menu -- Kelola Pendaftaran --> CRUDPendaftaran[Aksi Pendaftaran: Lihat/Verifikasi Status/Download Foto]
+  CRUDPendaftaran --> Overview
   
-  MenuAdmin --> ProsesLogout : Klik Logout
-  ProsesLogout --> BersihkanToken : Hapus token dari DB & LocalStorage
-  BersihkanToken --> [*]
+  Menu -- Logout --> Logout[Klik Logout & Hapus Token]
+  Logout --> End([Selesai])
 ```
 
 ---
@@ -119,7 +112,7 @@ Desain database ini mengacu pada struktur file migrasi database Laravel yang ter
 ERD model Chen menggambarkan hubungan logis entitas berserta atribut-atributnya secara mendalam menggunakan flowchart grafis.
 
 ```mermaid
-graph TD
+flowchart TD
   %% Entities
   Admin[admins]
   Product[products]
@@ -130,7 +123,7 @@ graph TD
   Rel1{Memiliki}
   
   %% Admin Attributes
-  Admin_id((<u>id</u>)) --- Admin
+  Admin_id((id)) --- Admin
   Admin_user((username)) --- Admin
   Admin_pass((password)) --- Admin
   Admin_token((api_token)) --- Admin
@@ -138,7 +131,7 @@ graph TD
   Admin_ua((updated_at)) --- Admin
   
   %% Product Attributes
-  Prod_id((<u>id</u>)) --- Product
+  Prod_id((id)) --- Product
   Prod_nama((nama_paket)) --- Product
   Prod_speed((kecepatan)) --- Product
   Prod_harga((harga)) --- Product
@@ -147,7 +140,7 @@ graph TD
   Prod_ua((updated_at)) --- Product
   
   %% Coverage Attributes
-  Cov_id((<u>id</u>)) --- Coverage
+  Cov_id((id)) --- Coverage
   Cov_prov((provinsi)) --- Coverage
   Cov_kab((kabupaten)) --- Coverage
   Cov_kec((kecamatan)) --- Coverage
@@ -159,7 +152,7 @@ graph TD
   Cov_ua((updated_at)) --- Coverage
   
   %% Registration Attributes
-  Reg_id((<u>id</u>)) --- Registration
+  Reg_id((id)) --- Registration
   Reg_nama((nama)) --- Registration
   Reg_tel((telepon)) --- Registration
   Reg_mail((email)) --- Registration
@@ -175,8 +168,8 @@ graph TD
   Reg_ua((updated_at)) --- Registration
   
   %% Connections
-  Registration == "M:" === Rel1
-  Rel1 === "1" === Product
+  Registration == M === Rel1
+  Rel1 === 1 === Product
 ```
 
 ---
