@@ -338,11 +338,37 @@ Calon pelanggan melihat peta wilayah jangkauan yang digambar secara interaktif m
 ![Gambar 15. Halaman Landing Page](public/images/landing_page.png)
 *Gambar 15. Halaman Landing Page (Sumber: Penulis, 2026)*
 
+##### Tabel 18. Halaman Landing Page & Cek Coverage Terimplementasi
+| Elemen / Tombol | Fungsi |
+| :--- | :--- |
+| **Peta Interaktif (Leaflet)** | Menampilkan visualisasi area cakupan jangkauan jaringan fiber optik secara geografis |
+| **Input Kabupaten** | Field input teks untuk menuliskan nama kabupaten/kota secara manual |
+| **Input Kecamatan** | Field input teks untuk menuliskan nama kecamatan secara manual |
+| **Tombol Gunakan Lokasi Saya** | Menggunakan fitur GPS perangkat untuk mendeteksi koordinat koordinat (latitude & longitude) secara otomatis |
+| **Tombol Cek Jangkauan** | Mengirimkan data wilayah ke backend API `/api/coverage/check` untuk memverifikasi ketersediaan jaringan |
+
+---
+
 ##### (2) Formulir Pendaftaran & Upload Attachment Pelanggan Baru
 Calon pelanggan yang areanya terjangkau dapat mengisi biodata. Field upload berkas (`foto_rumah`, `foto_ktp`, `foto_meteran`) menggunakan input file HTML bertipe multipart yang kemudian diunggah ke server dan disimpan ke direktori `public/uploads/registrations/`.
 
 ![Gambar 16. Formulir Pendaftaran Pelanggan Baru](public/images/registration_form.png)
 *Gambar 16. Formulir Pendaftaran Pelanggan Baru (Sumber: Penulis, 2026)*
+
+##### Tabel 19. Formulir Pendaftaran Pelanggan Baru Terimplementasi
+| Elemen / Tombol | Fungsi |
+| :--- | :--- |
+| **Nama Lengkap** | Field input teks untuk memasukkan nama lengkap calon pelanggan |
+| **No. Telepon** | Field input teks untuk memasukkan nomor telepon/WhatsApp aktif |
+| **Email** | Field input teks bertipe email untuk alamat surat elektronik aktif |
+| **Alamat Lengkap** | Field textarea untuk menginputkan alamat lengkap pemasangan |
+| **Pilihan Paket** | Dropdown berisi paket internet pilihan yang dipilih calon pelanggan |
+| **Pilih File Foto Rumah** | Tombol upload gambar untuk melampirkan foto bagian depan rumah tinggal |
+| **Pilih File Foto KTP** | Tombol upload gambar untuk melampirkan foto Kartu Tanda Penduduk |
+| **Pilih File Foto Meteran** | Tombol upload gambar untuk melampirkan foto meteran listrik PLN |
+| **Tombol Kirim Pendaftaran** | Melakukan submit formulir pendaftaran pelanggan baru beserta berkas gambar ke backend API |
+
+---
 
 ##### (3) Halaman Dashboard Admin Overview
 Setelah admin berhasil login, dashboard akan memuat overview statistik agregasi data yang bersumber dari API `/api/stats` dengan representasi grafis grafik pendaftaran.
@@ -350,11 +376,37 @@ Setelah admin berhasil login, dashboard akan memuat overview statistik agregasi 
 ![Gambar 17. Dashboard Admin Overview](public/images/admin_dashboard.png)
 *Gambar 17. Dashboard Admin Overview (Sumber: Penulis, 2026)*
 
+##### Tabel 20. Halaman Dashboard Admin Overview Terimplementasi
+| Elemen / Tombol | Fungsi |
+| :--- | :--- |
+| **Card Total Paket** | Menampilkan total jumlah paket produk internet yang terdaftar di database |
+| **Card Total Wilayah** | Menampilkan total jumlah wilayah coverage yang terdata di sistem |
+| **Card Wilayah Tersedia** | Menampilkan jumlah wilayah coverage yang berstatus aktif/Tersedia |
+| **Card Total Registrasi** | Menampilkan total keseluruhan pengajuan pendaftaran pelanggan masuk |
+| **Card Registrasi Baru** | Menampilkan jumlah pendaftaran calon pelanggan yang masih berstatus baru (belum diproses) |
+| **Grafik Registrasi Bulanan** | Representasi grafis visual fluktuasi jumlah pendaftaran pelanggan per bulan |
+
+---
+
 ##### (4) Halaman CRUD Kelola Paket Internet (Products)
 Halaman ini menyajikan tabel kelola paket produk internet dengan antarmuka untuk menambah paket baru, mengubah tarif/kecepatan paket, dan menghapus paket yang tidak lagi aktif.
 
 ![Gambar 18. Halaman CRUD Kelola Paket Internet](public/images/admin_products.png)
 *Gambar 18. Halaman CRUD Kelola Paket Internet (Sumber: Penulis, 2026)*
+
+##### Tabel 21. Halaman CRUD Kelola Paket Internet Terimplementasi
+| Elemen / Tombol | Fungsi |
+| :--- | :--- |
+| **Tombol Tambah Paket** | Membuka modal pop-up formulir penambahan paket internet baru |
+| **Input Nama Paket** | Field input teks nama paket baru (contoh: Fast 50) |
+| **Input Kecepatan** | Field input teks kecepatan bandwidth paket baru (contoh: 50 Mbps) |
+| **Input Harga** | Field input angka nominal biaya bulanan paket baru |
+| **Input Deskripsi** | Field textarea keterangan benefit paket baru |
+| **Tombol Edit (Ikon Pensil)** | Membuka modal formulir pengeditan data paket terpilih |
+| **Tombol Hapus (Ikon Sampah)** | Menghapus data paket internet terpilih secara permanen dari database |
+| **Tombol Simpan** | Menyimpan penambahan / perubahan data paket internet ke database |
+
+---
 
 ##### (5) Halaman CRUD Kelola Wilayah Coverage
 Halaman admin untuk mendaftarkan wilayah coverage. Sistem terintegrasi dengan Nominatim OpenStreetMap API untuk mencari koordinat geografis (Latitude, Longitude) dan GeoJSON batas administrasi secara otomatis berdasarkan nama kecamatan dan kabupaten.
@@ -362,11 +414,37 @@ Halaman admin untuk mendaftarkan wilayah coverage. Sistem terintegrasi dengan No
 ![Gambar 19. Halaman CRUD Kelola Wilayah Coverage](public/images/admin_coverage.png)
 *Gambar 19. Halaman CRUD Kelola Wilayah Coverage (Sumber: Penulis, 2026)*
 
+##### Tabel 22. Halaman CRUD Kelola Wilayah Coverage Terimplementasi
+| Elemen / Tombol | Fungsi |
+| :--- | :--- |
+| **Tombol Tambah Wilayah** | Membuka modal pop-up formulir penambahan area coverage baru |
+| **Input Provinsi** | Field input teks nama provinsi (default Lampung) |
+| **Input Kabupaten** | Field input teks nama kabupaten / kota |
+| **Input Kecamatan** | Field input teks nama kecamatan |
+| **Dropdown Status** | Pilihan status ketersediaan area jangkauan ('Tersedia', 'Belum Tersedia') |
+| **Input Latitude & Longitude** | Koordinat geografis manual (jika dikosongkan, sistem mengambil otomatis via API Nominatim) |
+| **Tombol Edit (Ikon Pensil)** | Membuka modal formulir pengeditan wilayah coverage terpilih |
+| **Tombol Hapus (Ikon Sampah)** | Menghapus data wilayah coverage terpilih secara permanen dari database |
+| **Tombol Simpan** | Mengirimkan data wilayah, memicu integrasi koordinat OpenStreetMap, dan menyimpannya |
+
+---
+
 ##### (6) Halaman Manajemen Registrasi Pelanggan Baru
 Halaman ini menampilkan seluruh daftar pengajuan pasang baru dari calon pelanggan. Admin dapat menyaring data berdasarkan status (Baru, Diproses, Selesai, Ditolak), mengunduh dokumen lampiran foto secara langsung, menulis catatan verifikasi, serta mengubah status pendaftaran.
 
 ![Gambar 20. Halaman Manajemen Registrasi Pelanggan](public/images/admin_registrations.png)
 *Gambar 20. Halaman Manajemen Registrasi Pelanggan (Sumber: Penulis, 2026)*
+
+##### Tabel 23. Halaman Manajemen Registrasi Pelanggan Terimplementasi
+| Elemen / Tombol | Fungsi |
+| :--- | :--- |
+| **Dropdown Filter Status** | Menyaring baris data pendaftaran pelanggan berdasarkan status tertentu |
+| **Tombol Detail (Ikon Eye)** | Membuka rincian lengkap biodata calon pelanggan |
+| **Link Lampiran Foto** | Membuka / mengunduh file foto rumah, foto KTP, atau foto meteran yang diunggah pelanggan |
+| **Dropdown Status Pendaftaran** | Mengubah status progres pendaftaran ('Baru', 'Diproses', 'Selesai', 'Ditolak') |
+| **Input Catatan Admin** | Textarea untuk menambahkan catatan/keterangan tindak lanjut dari admin/teknisi |
+| **Tombol Simpan Perubahan** | Menyimpan pembaruan status dan catatan registrasi pelanggan ke database |
+| **Tombol Hapus (Ikon Sampah)** | Menghapus pengajuan pendaftaran pelanggan secara permanen dari database |
 
 ---
 
