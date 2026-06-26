@@ -50,23 +50,20 @@ Menggambarkan alur aktivitas ketika calon pelanggan melakukan cek lokasi jangkau
 ```mermaid
 flowchart TD
   Start([Mulai]) --> Akses[Mengakses Landing Page]
-  Akses --> Input[Input Kabupaten & Kecamatan / Deteksi GPS]
-  Input --> Cek[Klik Tombol Cek Jangkauan]
-  Cek --> Verifikasi{Sistem Memeriksa Database}
+  Akses --> Input[Memasukkan Nama Kabupaten & Kecamatan / Mengaktifkan GPS]
+  Input --> KlikCek[Mengeklik Tombol Cek Jangkauan]
+  KlikCek --> CekHasil{Melihat Hasil Jangkauan}
   
-  Verifikasi -- Belum Tersedia --> TidakTersedia[Tampilkan Pesan Area Belum Terjangkau]
-  TidakTersedia --> SelesaiTidakDaftar([Selesai - Tidak Bisa Daftar])
+  CekHasil -- Belum Tersedia --> BacaPesan[Membaca Notifikasi Area Belum Terjangkau]
+  BacaPesan --> SelesaiBatal([Selesai])
   
-  Verifikasi -- Tersedia --> Tersedia[Tampilkan Daftar Paket & Form Pendaftaran]
-  Tersedia --> IsiForm[Isi Data: Nama, Telepon, Email, Alamat]
-  IsiForm --> Upload[Unggah Berkas: Foto Rumah, KTP, & Meteran Listrik]
-  Upload --> Kirim[Klik Tombol Kirim Pendaftaran]
-  Kirim --> Validasi{Validasi Form Server API}
-  
-  Validasi -- Tidak Valid --> Tersedia
-  Validasi -- Valid --> Simpan[Sistem Menyimpan Data & Foto Ke Server]
-  Simpan --> Sukses[Tampilkan Notifikasi Sukses Pendaftaran]
-  Sukses --> End([Selesai - Terdaftar])
+  CekHasil -- Tersedia --> LihatPaket[Melihat Daftar Pilihan Paket Internet]
+  LihatPaket --> PilihPaket[Memilih Paket Internet]
+  PilihPaket --> IsiData[Mengisi Formulir Biodata Diri]
+  IsiData --> UploadFoto[Mengunggah Foto Rumah, KTP, dan Meteran Listrik]
+  UploadFoto --> KlikKirim[Mengeklik Tombol Kirim Pendaftaran]
+  KlikKirim --> TerimaKonfirmasi[Menerima Notifikasi Konfirmasi Sukses]
+  TerimaKonfirmasi --> SelesaiDaftar([Selesai])
 ```
 
 #### 2) Activity Diagram Administrator
@@ -74,31 +71,35 @@ Menggambarkan alur kerja administrator dalam memantau statistik, mengelola data 
 
 ```mermaid
 flowchart TD
-  Start([Mulai]) --> BukaLogin[Membuka Halaman Login Admin Hash #admin]
-  BukaLogin --> InputKredensial[Input Username & Password]
-  InputKredensial --> KlikLogin[Klik Tombol Sign In]
-  KlikLogin --> CekKredensial{Otorisasi Kredensial md5}
+  Start([Mulai]) --> BukaLogin[Membuka Halaman Login Admin #admin]
+  BukaLogin --> InputKredensial[Menginputkan Username & Password]
+  InputKredensial --> KlikSignIn[Mengeklik Tombol Sign In]
+  KlikSignIn --> MasukDashboard[Memasuki Halaman Dashboard Admin]
+  MasukDashboard --> LihatOverview[Membaca Ringkasan Statistik Sistem]
+  LihatOverview --> PilihTab{Memilih Tab Menu Navigasi}
   
-  CekKredensial -- Salah --> Salah[Tampilkan Pesan Error]
-  Salah --> BukaLogin
+  %% Tab Coverage Area
+  PilihTab -- Kelola Coverage Area --> BukaCoverage[Membuka Tab Coverage]
+  BukaCoverage --> AksiCoverage[Melakukan Tambah, Edit, atau Hapus Wilayah Jangkauan]
+  AksiCoverage --> KembaliOverview[Kembali ke Menu Overview]
   
-  CekKredensial -- Benar --> Dashboard[Masuk Dashboard & Simpan Token]
-  Dashboard --> Overview[Tampilkan Panel Overview Statistik]
+  %% Tab Produk
+  PilihTab -- Kelola Paket Internet --> BukaProduk[Membuka Tab Products]
+  BukaProduk --> AksiProduk[Melakukan Tambah, Edit, atau Hapus Paket Internet]
+  AksiProduk --> KembaliOverview
   
-  Overview --> Menu{Pilih Menu Tab}
+  %% Tab Pendaftaran
+  PilihTab -- Kelola Pendaftaran --> BukaPendaftaran[Membuka Tab Registrations]
+  BukaPendaftaran --> SaringData[Menyaring Daftar Registrasi sesuai Status]
+  SaringData --> PeriksaDetail[Melihat Detail & Mengunduh Foto Calon Pelanggan]
+  PeriksaDetail --> UpdateStatus[Memperbarui Status Pendaftaran & Menulis Catatan]
+  UpdateStatus --> KembaliOverview
   
-  Menu -- Kelola Coverage --> CRUDCoverage[Aksi Coverage: Tambah/Edit/Hapus Wilayah]
-  CRUDCoverage --> SyncOSM[Sinkronisasi Koordinat & GeoJSON via OSM]
-  SyncOSM --> Overview
+  KembaliOverview --> LihatOverview
   
-  Menu -- Kelola Produk --> CRUDProduk[Aksi Produk: Tambah/Edit/Hapus Paket]
-  CRUDProduk --> Overview
-  
-  Menu -- Kelola Pendaftaran --> CRUDPendaftaran[Aksi Pendaftaran: Lihat/Verifikasi Status/Download Foto]
-  CRUDPendaftaran --> Overview
-  
-  Menu -- Logout --> Logout[Klik Logout & Hapus Token]
-  Logout --> End([Selesai])
+  %% Logout
+  PilihTab -- Logout Akun --> KlikLogout[Mengeklik Tombol Logout]
+  KlikLogout --> SelesaiAdmin([Selesai])
 ```
 
 ---
@@ -316,6 +317,7 @@ Halaman dashboard utama untuk menampilkan panel grafik dan metrik performa siste
 ### 1) Halaman Form Login Admin
 Halaman ini adalah tampilan nyata dari panel form login yang diimplementasikan menggunakan React.js dan didekorasi dengan CSS modern untuk melayani otentikasi login admin secara responsif.
 
+![Gambar 14. Halaman Form login](public/images/login_page.png)
 *Gambar 14. Halaman Form login (Sumber: Penulis, 2026)*
 
 ##### Tabel 17. Halaman Form Login Admin Terimplementasi
@@ -333,20 +335,38 @@ Halaman ini adalah tampilan nyata dari panel form login yang diimplementasikan m
 ##### (1) Halaman Landing Page & Cek Coverage Jangkauan
 Calon pelanggan melihat peta wilayah jangkauan yang digambar secara interaktif menggunakan Leaflet Map. Ketika mengklik titik lokasi di peta atau menginput kecamatan dan kabupaten secara manual, sistem memanggil endpoint `/api/coverage/check`. Jika status adalah "Tersedia", tombol pendaftaran akan aktif.
 
+![Gambar 15. Halaman Landing Page](public/images/landing_page.png)
+*Gambar 15. Halaman Landing Page (Sumber: Penulis, 2026)*
+
 ##### (2) Formulir Pendaftaran & Upload Attachment Pelanggan Baru
 Calon pelanggan yang areanya terjangkau dapat mengisi biodata. Field upload berkas (`foto_rumah`, `foto_ktp`, `foto_meteran`) menggunakan input file HTML bertipe multipart yang kemudian diunggah ke server dan disimpan ke direktori `public/uploads/registrations/`.
+
+![Gambar 16. Formulir Pendaftaran Pelanggan Baru](public/images/registration_form.png)
+*Gambar 16. Formulir Pendaftaran Pelanggan Baru (Sumber: Penulis, 2026)*
 
 ##### (3) Halaman Dashboard Admin Overview
 Setelah admin berhasil login, dashboard akan memuat overview statistik agregasi data yang bersumber dari API `/api/stats` dengan representasi grafis grafik pendaftaran.
 
+![Gambar 17. Dashboard Admin Overview](public/images/admin_dashboard.png)
+*Gambar 17. Dashboard Admin Overview (Sumber: Penulis, 2026)*
+
 ##### (4) Halaman CRUD Kelola Paket Internet (Products)
 Halaman ini menyajikan tabel kelola paket produk internet dengan antarmuka untuk menambah paket baru, mengubah tarif/kecepatan paket, dan menghapus paket yang tidak lagi aktif.
+
+![Gambar 18. Halaman CRUD Kelola Paket Internet](public/images/admin_products.png)
+*Gambar 18. Halaman CRUD Kelola Paket Internet (Sumber: Penulis, 2026)*
 
 ##### (5) Halaman CRUD Kelola Wilayah Coverage
 Halaman admin untuk mendaftarkan wilayah coverage. Sistem terintegrasi dengan Nominatim OpenStreetMap API untuk mencari koordinat geografis (Latitude, Longitude) dan GeoJSON batas administrasi secara otomatis berdasarkan nama kecamatan dan kabupaten.
 
+![Gambar 19. Halaman CRUD Kelola Wilayah Coverage](public/images/admin_coverage.png)
+*Gambar 19. Halaman CRUD Kelola Wilayah Coverage (Sumber: Penulis, 2026)*
+
 ##### (6) Halaman Manajemen Registrasi Pelanggan Baru
 Halaman ini menampilkan seluruh daftar pengajuan pasang baru dari calon pelanggan. Admin dapat menyaring data berdasarkan status (Baru, Diproses, Selesai, Ditolak), mengunduh dokumen lampiran foto secara langsung, menulis catatan verifikasi, serta mengubah status pendaftaran.
+
+![Gambar 20. Halaman Manajemen Registrasi Pelanggan](public/images/admin_registrations.png)
+*Gambar 20. Halaman Manajemen Registrasi Pelanggan (Sumber: Penulis, 2026)*
 
 ---
 
